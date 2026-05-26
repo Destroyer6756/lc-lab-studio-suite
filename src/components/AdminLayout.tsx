@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const nav = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; end?: boolean; badge?: boolean; adminOnly?: boolean };
+const nav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin/productos", label: "Productos", icon: Package },
   { to: "/admin/pos", label: "Nueva venta", icon: ShoppingCart, badge: true },
@@ -15,7 +16,7 @@ const nav = [
   { to: "/admin/reservas", label: "Reservas", icon: Calendar },
   { to: "/admin/clientes", label: "Clientes", icon: Users },
   { to: "/admin/reportes", label: "Reportes", icon: FileBarChart, adminOnly: true },
-] as const;
+];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, signOut } = useAuth();
