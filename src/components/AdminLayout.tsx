@@ -46,6 +46,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {visible.map((n) => {
             const active = n.end ? path === n.to : path.startsWith(n.to);
+            return (
               <Link key={n.to} to={n.to as string} onClick={() => setOpen(false)}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
