@@ -42,7 +42,7 @@ function ReservationsPage() {
   });
 
   const setStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("reservations").update({ status }).eq("id", id);
+    const { error } = await supabase.from("reservations").update({ status: status as "pendiente" | "confirmada" | "completada" | "cancelada" }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Estado actualizado");
     qc.invalidateQueries({ queryKey: ["reservations"] });
