@@ -69,6 +69,9 @@ function POS() {
       if (!autoConfirm) {
         await supabase.from("orders").update({ status: "pendiente" }).eq("id", order.id);
       }
+
+      const cust = customers.find(c => c.id === customerId);
+      generateOrderPdf({
         number: order.number, doc_kind: docKind, payment_method: payment,
         created_at: order.created_at,
         customer: cust ? { full_name: cust.full_name, doc_type: cust.doc_type, doc_number: cust.doc_number, address: cust.address } : null,
