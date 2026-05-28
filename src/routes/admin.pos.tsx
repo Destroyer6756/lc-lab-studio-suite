@@ -83,6 +83,8 @@ function POS() {
       clear();
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["payment-transactions"] });
+      toast.success(autoConfirm ? "Pago confirmado" : "Pago pendiente de confirmación");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error al procesar");
     } finally { setBusy(false); }
