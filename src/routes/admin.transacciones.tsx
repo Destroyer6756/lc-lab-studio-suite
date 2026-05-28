@@ -75,9 +75,13 @@ function TxPage() {
   const setStatus = async (tx: Tx, status: "confirmado" | "rechazado" | "reembolsado", extra?: { reference?: string; notes?: string }) => {
     setBusy(true);
     try {
-      const payload: Record<string, unknown> = { status, confirmed_by: user?.id, confirmed_at: new Date().toISOString() };
-      if (extra?.reference !== undefined) payload.reference = extra.reference || null;
-      if (extra?.notes !== undefined) payload.notes = extra.notes || null;
+      const payload = {
+        status,
+        confirmed_by: user?.id ?? null,
+        confirmed_at: new Date().toISOString(),
+        ...(extra?.reference !== undefined ? { reference: extra.reference || null } : {}),
+        ...(extra?.notes !== undefined ? { notes: extra.notes || null } : {}),
+      };
       const { error } = await supabase.from("payment_transactions").update(payload).eq("id", tx.id);
       if (error) throw error;
 
