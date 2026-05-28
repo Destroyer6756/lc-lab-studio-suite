@@ -60,7 +60,7 @@ function POS() {
 
       const cust = customers.find(c => c.id === customerId);
       generateOrderPdf({
-        number: order.number, doc_kind, payment_method: payment,
+        number: order.number, doc_kind: docKind, payment_method: payment,
         created_at: order.created_at,
         customer: cust ? { full_name: cust.full_name, doc_type: cust.doc_type, doc_number: cust.doc_number, address: cust.address } : null,
         items: items.map(i => ({ product_name: i.name, quantity: i.quantity, unit_price: i.price, subtotal: i.price * i.quantity })),
