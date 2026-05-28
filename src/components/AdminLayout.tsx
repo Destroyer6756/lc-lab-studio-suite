@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Users, Calendar, ShoppingCart, FileBarChart, History, LogOut, Camera, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, Users, Calendar, ShoppingCart, FileBarChart, History, LogOut, Camera, Menu, X, Wallet } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
