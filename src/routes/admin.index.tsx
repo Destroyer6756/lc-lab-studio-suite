@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, Calendar, DollarSign, TrendingUp } from "lucide-react";
+import { Package, Users, Calendar, DollarSign, TrendingUp, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/admin/")({ component: Dashboard });
@@ -11,11 +12,12 @@ function Dashboard() {
   const { data } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
-      const [products, customers, reservations, orders] = await Promise.all([
+      const [products, customers, reservations, orders, lowStock] = await Promise.all([
         supabase.from("products").select("id", { count: "exact", head: true }),
         supabase.from("customers").select("id", { count: "exact", head: true }),
         supabase.from("reservations").select("id", { count: "exact", head: true }).eq("status", "pendiente"),
         supabase.from("orders").select("total, created_at, status").order("created_at", { ascending: false }).limit(200),
+        supabase.from("products").select("id, name, stock").eq("is_active", true).lte("stock", 5).order("stock").limit(5),
       ]);
       const revenue = (orders.data ?? []).filter(o => o.status !== "anulado").reduce((s, o) => s + Number(o.total), 0);
       const byDay: Record<string, number> = {};
@@ -30,6 +32,7 @@ function Dashboard() {
         reservations: reservations.count ?? 0,
         revenue,
         chart,
+        lowStock: lowStock.data ?? [],
       };
     },
   });
@@ -91,6 +94,25 @@ function Dashboard() {
           )}
         </CardContent>
       </Card>
+      {data?.lowStock && data.lowStock.length > 0 && (
+        <Card className="border-destructive/40 bg-card">
+          <CardHeader>
+            <CardTitle className="font-display flex items-center gap-2 text-destructive">
+              <AlertTriangle className="size-5" /> Stock bajo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="divide-y divide-border">
+              {data.lowStock.map((p) => (
+                <li key={p.id} className="flex items-center justify-between py-2 text-sm">
+                  <span className="font-medium">{p.name}</span>
+                  <Link to="/admin/productos" className="text-gold hover:underline">{p.stock} unidades</Link>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

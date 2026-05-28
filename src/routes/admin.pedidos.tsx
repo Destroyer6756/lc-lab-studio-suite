@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileDown, Loader2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FileDown, Loader2, MoreVertical, CheckCircle2, Truck, Ban } from "lucide-react";
 import { generateOrderPdf } from "@/lib/pdf";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export const Route = createFileRoute("/admin/pedidos")({ component: OrdersPage });
 
@@ -26,6 +29,8 @@ const statusColor: Record<string, string> = {
 };
 
 function OrdersPage() {
+  const qc = useQueryClient();
+  const [q, setQ] = useState("");
   const { data = [], isLoading } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
@@ -46,14 +51,32 @@ function OrdersPage() {
     toast.success("PDF generado");
   };
 
+  const setStatus = async (id: string, status: "pagado" | "entregado" | "anulado") => {
+    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(`Pedido ${status}`);
+    qc.invalidateQueries({ queryKey: ["orders"] });
+    qc.invalidateQueries({ queryKey: ["dashboard"] });
+    qc.invalidateQueries({ queryKey: ["products"] });
+  };
+
+  const filtered = data.filter(o =>
+    String(o.number).includes(q) ||
+    (o.customer?.full_name ?? "").toLowerCase().includes(q.toLowerCase()) ||
+    (o.customer?.doc_number ?? "").includes(q)
+  );
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-bold">Pedidos e historial</h1>
-        <p className="text-muted-foreground">Todas las ventas con sus comprobantes</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Pedidos e historial</h1>
+          <p className="text-muted-foreground">Todas las ventas con sus comprobantes</p>
+        </div>
+        <Input placeholder="Buscar por N°, cliente o documento..." value={q} onChange={(e) => setQ(e.target.value)} className="w-72" />
       </div>
       <Card className="border-border bg-card">
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           {isLoading ? <div className="py-16 grid place-items-center"><Loader2 className="size-8 animate-spin text-gold" /></div> : (
             <Table>
               <TableHeader><TableRow>
@@ -62,7 +85,7 @@ function OrdersPage() {
                 <TableHead className="text-right">Total</TableHead><TableHead></TableHead>
               </TableRow></TableHeader>
               <TableBody>
-                {data.map(o => (
+                {filtered.map(o => (
                   <TableRow key={o.id}>
                     <TableCell className="font-mono">{String(o.number).padStart(6, "0")}</TableCell>
                     <TableCell className="text-xs whitespace-nowrap">{new Date(o.created_at).toLocaleString("es-PE")}</TableCell>
@@ -71,10 +94,24 @@ function OrdersPage() {
                     <TableCell className="capitalize text-sm">{o.payment_method}</TableCell>
                     <TableCell><Badge className={`${statusColor[o.status]} border-0 capitalize`}>{o.status}</Badge></TableCell>
                     <TableCell className="text-right font-semibold text-gold">S/ {Number(o.total).toFixed(2)}</TableCell>
-                    <TableCell><Button size="sm" variant="ghost" onClick={() => print(o)}><FileDown className="size-4 mr-1" />PDF</Button></TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => print(o)}><FileDown className="size-4 mr-1" />PDF</Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost"><MoreVertical className="size-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setStatus(o.id, "pagado")}><CheckCircle2 className="size-4 mr-2" />Marcar pagado</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setStatus(o.id, "entregado")}><Truck className="size-4 mr-2" />Marcar entregado</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setStatus(o.id, "anulado")} className="text-destructive"><Ban className="size-4 mr-2" />Anular</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
-                {data.length === 0 && <TableRow><TableCell colSpan={8} className="text-center py-10 text-muted-foreground">Sin pedidos</TableCell></TableRow>}
+                {filtered.length === 0 && <TableRow><TableCell colSpan={8} className="text-center py-10 text-muted-foreground">Sin pedidos</TableCell></TableRow>}
               </TableBody>
             </Table>
           )}
