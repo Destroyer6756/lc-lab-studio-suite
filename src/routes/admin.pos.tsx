@@ -58,8 +58,17 @@ function POS() {
       const { error: e2 } = await supabase.from("order_items").insert(itemsPayload);
       if (e2) throw e2;
 
-      const cust = customers.find(c => c.id === customerId);
-      generateOrderPdf({
+      // Registrar transacción de pago (efectivo se auto-confirma, otros quedan pendientes)
+      const autoConfirm = payment === "efectivo";
+      await supabase.from("payment_transactions").insert({
+        order_id: order.id, payment_method: payment, amount: total,
+        status: autoConfirm ? "confirmado" : "pendiente",
+        confirmed_by: autoConfirm ? user?.id : null,
+        confirmed_at: autoConfirm ? new Date().toISOString() : null,
+      });
+      if (!autoConfirm) {
+        await supabase.from("orders").update({ status: "pendiente" }).eq("id", order.id);
+      }
         number: order.number, doc_kind: docKind, payment_method: payment,
         created_at: order.created_at,
         customer: cust ? { full_name: cust.full_name, doc_type: cust.doc_type, doc_number: cust.doc_number, address: cust.address } : null,
