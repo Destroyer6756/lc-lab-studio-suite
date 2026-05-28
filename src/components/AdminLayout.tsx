@@ -13,6 +13,7 @@ const nav: NavItem[] = [
   { to: "/admin/productos", label: "Productos", icon: Package },
   { to: "/admin/pos", label: "Nueva venta", icon: ShoppingCart, badge: true },
   { to: "/admin/pedidos", label: "Pedidos", icon: History },
+  { to: "/admin/transacciones", label: "Transacciones", icon: Wallet },
   { to: "/admin/reservas", label: "Reservas", icon: Calendar },
   { to: "/admin/clientes", label: "Clientes", icon: Users },
   { to: "/admin/reportes", label: "Reportes", icon: FileBarChart, adminOnly: true },
