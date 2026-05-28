@@ -12,11 +12,12 @@ function Dashboard() {
   const { data } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
-      const [products, customers, reservations, orders] = await Promise.all([
+      const [products, customers, reservations, orders, lowStock] = await Promise.all([
         supabase.from("products").select("id", { count: "exact", head: true }),
         supabase.from("customers").select("id", { count: "exact", head: true }),
         supabase.from("reservations").select("id", { count: "exact", head: true }).eq("status", "pendiente"),
         supabase.from("orders").select("total, created_at, status").order("created_at", { ascending: false }).limit(200),
+        supabase.from("products").select("id, name, stock").eq("is_active", true).lte("stock", 5).order("stock").limit(5),
       ]);
       const revenue = (orders.data ?? []).filter(o => o.status !== "anulado").reduce((s, o) => s + Number(o.total), 0);
       const byDay: Record<string, number> = {};
@@ -31,6 +32,7 @@ function Dashboard() {
         reservations: reservations.count ?? 0,
         revenue,
         chart,
+        lowStock: lowStock.data ?? [],
       };
     },
   });
