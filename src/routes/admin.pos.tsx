@@ -46,7 +46,7 @@ function POS() {
     setBusy(true);
     try {
       const { data: order, error } = await supabase.from("orders").insert({
-        customer_id: customerId, user_id: user?.id, doc_kind, payment_method: payment,
+        customer_id: customerId, user_id: user?.id, doc_kind: docKind, payment_method: payment,
         status: "pagado", subtotal, igv, total,
       }).select("*").single();
       if (error) throw error;
