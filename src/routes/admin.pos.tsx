@@ -58,6 +58,18 @@ function POS() {
       const { error: e2 } = await supabase.from("order_items").insert(itemsPayload);
       if (e2) throw e2;
 
+      // Registrar transacción de pago (efectivo se auto-confirma, otros quedan pendientes)
+      const autoConfirm = payment === "efectivo";
+      await supabase.from("payment_transactions").insert({
+        order_id: order.id, payment_method: payment, amount: total,
+        status: autoConfirm ? "confirmado" : "pendiente",
+        confirmed_by: autoConfirm ? user?.id : null,
+        confirmed_at: autoConfirm ? new Date().toISOString() : null,
+      });
+      if (!autoConfirm) {
+        await supabase.from("orders").update({ status: "pendiente" }).eq("id", order.id);
+      }
+
       const cust = customers.find(c => c.id === customerId);
       generateOrderPdf({
         number: order.number, doc_kind: docKind, payment_method: payment,
@@ -71,6 +83,8 @@ function POS() {
       clear();
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["payment-transactions"] });
+      toast.success(autoConfirm ? "Pago confirmado" : "Pago pendiente de confirmación");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error al procesar");
     } finally { setBusy(false); }

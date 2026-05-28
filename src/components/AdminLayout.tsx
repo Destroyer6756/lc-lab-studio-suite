@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Package, Users, Calendar, ShoppingCart, FileBarChart, History, LogOut, Camera, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, Users, Calendar, ShoppingCart, FileBarChart, History, LogOut, Camera, Menu, X, Wallet } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ const nav: NavItem[] = [
   { to: "/admin/productos", label: "Productos", icon: Package },
   { to: "/admin/pos", label: "Nueva venta", icon: ShoppingCart, badge: true },
   { to: "/admin/pedidos", label: "Pedidos", icon: History },
+  { to: "/admin/transacciones", label: "Transacciones", icon: Wallet },
   { to: "/admin/reservas", label: "Reservas", icon: Calendar },
   { to: "/admin/clientes", label: "Clientes", icon: Users },
   { to: "/admin/reportes", label: "Reportes", icon: FileBarChart, adminOnly: true },
