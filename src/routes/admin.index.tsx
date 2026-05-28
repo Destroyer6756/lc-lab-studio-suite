@@ -94,6 +94,25 @@ function Dashboard() {
           )}
         </CardContent>
       </Card>
+      {data?.lowStock && data.lowStock.length > 0 && (
+        <Card className="border-destructive/40 bg-card">
+          <CardHeader>
+            <CardTitle className="font-display flex items-center gap-2 text-destructive">
+              <AlertTriangle className="size-5" /> Stock bajo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="divide-y divide-border">
+              {data.lowStock.map((p) => (
+                <li key={p.id} className="flex items-center justify-between py-2 text-sm">
+                  <span className="font-medium">{p.name}</span>
+                  <Link to="/admin/productos" className="text-gold hover:underline">{p.stock} unidades</Link>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
