@@ -166,6 +166,53 @@ export type Database = {
           },
         ]
       }
+      payment_transactions: {
+        Row: {
+          amount: number
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          order_id: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          reference: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+        }
+        Insert: {
+          amount?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          reference?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+        }
+        Update: {
+          amount?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          reference?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
@@ -322,6 +369,7 @@ export type Database = {
       doc_kind: "boleta" | "factura"
       order_status: "pendiente" | "pagado" | "entregado" | "anulado"
       payment_method: "efectivo" | "yape" | "plin" | "tarjeta"
+      payment_status: "pendiente" | "confirmado" | "rechazado" | "reembolsado"
       reservation_status:
         | "pendiente"
         | "confirmada"
@@ -458,6 +506,7 @@ export const Constants = {
       doc_kind: ["boleta", "factura"],
       order_status: ["pendiente", "pagado", "entregado", "anulado"],
       payment_method: ["efectivo", "yape", "plin", "tarjeta"],
+      payment_status: ["pendiente", "confirmado", "rechazado", "reembolsado"],
       reservation_status: [
         "pendiente",
         "confirmada",
