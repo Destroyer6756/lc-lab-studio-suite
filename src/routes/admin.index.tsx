@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, Calendar, DollarSign, TrendingUp } from "lucide-react";
+import { Package, Users, Calendar, DollarSign, TrendingUp, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/admin/")({ component: Dashboard });
