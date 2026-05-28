@@ -29,6 +29,8 @@ const statusColor: Record<string, string> = {
 };
 
 function OrdersPage() {
+  const qc = useQueryClient();
+  const [q, setQ] = useState("");
   const { data = [], isLoading } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
@@ -48,6 +50,21 @@ function OrdersPage() {
     });
     toast.success("PDF generado");
   };
+
+  const setStatus = async (id: string, status: "pagado" | "entregado" | "anulado") => {
+    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(`Pedido ${status}`);
+    qc.invalidateQueries({ queryKey: ["orders"] });
+    qc.invalidateQueries({ queryKey: ["dashboard"] });
+    qc.invalidateQueries({ queryKey: ["products"] });
+  };
+
+  const filtered = data.filter(o =>
+    String(o.number).includes(q) ||
+    (o.customer?.full_name ?? "").toLowerCase().includes(q.toLowerCase()) ||
+    (o.customer?.doc_number ?? "").includes(q)
+  );
 
   return (
     <div className="space-y-6">
