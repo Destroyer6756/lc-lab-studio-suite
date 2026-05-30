@@ -117,19 +117,28 @@ function POS() {
         </div>
         <Input placeholder="Buscar producto..." value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {filtered.map(p => (
-            <button key={p.id} onClick={() => { add({ product_id: p.id, name: p.name, price: Number(p.price) }); toast.success(p.name); }}
-              className="text-left rounded-lg border border-border bg-card hover:border-gold transition-colors overflow-hidden">
-              <div className="aspect-square bg-secondary">
-                {p.image_url ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" /> :
-                  <div className="grid place-items-center h-full text-xs text-muted-foreground">Sin imagen</div>}
-              </div>
-              <div className="p-2">
-                <div className="text-sm font-medium line-clamp-1">{p.name}</div>
-                <div className="text-gold font-semibold text-sm">S/ {Number(p.price).toFixed(2)}</div>
-              </div>
-            </button>
-          ))}
+          {filtered.map(p => {
+            const inCart = items.find(i => i.product_id === p.id)?.quantity ?? 0;
+            const remaining = (p.stock ?? 0) - inCart;
+            const disabled = remaining <= 0;
+            return (
+              <button key={p.id} disabled={disabled}
+                onClick={() => { add({ product_id: p.id, name: p.name, price: Number(p.price) }); toast.success(p.name); }}
+                className="text-left rounded-lg border border-border bg-card hover:border-gold transition-colors overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed">
+                <div className="aspect-square bg-secondary">
+                  {p.image_url ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" /> :
+                    <div className="grid place-items-center h-full text-xs text-muted-foreground">Sin imagen</div>}
+                </div>
+                <div className="p-2">
+                  <div className="text-sm font-medium line-clamp-1">{p.name}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-gold font-semibold text-sm">S/ {Number(p.price).toFixed(2)}</div>
+                    <div className={`text-[10px] ${remaining <= 3 ? "text-destructive" : "text-muted-foreground"}`}>Stock: {p.stock}</div>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
