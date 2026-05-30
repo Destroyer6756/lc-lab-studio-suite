@@ -195,6 +195,22 @@ function POS() {
                 </button>
               ))}
             </div>
+            {(payment === "yape" || payment === "plin") && (
+              <div className="mt-3 rounded-md border border-gold/30 bg-gold/5 p-3 flex flex-col items-center gap-2">
+                <p className="text-xs text-muted-foreground">
+                  Escanea el QR con <span className="text-gold font-medium uppercase">{payment}</span> para pagar
+                </p>
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+                    `${payment.toUpperCase()}|987654321|S/ ${total.toFixed(2)}`
+                  )}`}
+                  alt={`QR ${payment}`}
+                  className="size-44 rounded bg-white p-2"
+                />
+                <p className="text-sm font-display font-semibold text-gold">S/ {total.toFixed(2)}</p>
+                <p className="text-[11px] text-muted-foreground">Número: 987 654 321</p>
+              </div>
+            )}
           </div>
           <Separator />
           <div className="space-y-1 text-sm">
