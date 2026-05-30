@@ -113,15 +113,20 @@ function CustomerDialog({ customer, onSaved }: { customer: Customer | null; onSa
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
-    if (!docNumber || !fullName) return toast.error("Documento y nombre son obligatorios");
+    const { customerSchema, firstZodMessage } = await import("@/lib/validators");
+    const parsed = customerSchema.safeParse({ doc_type: docType, doc_number: docNumber, full_name: fullName, email, phone, address });
+    if (!parsed.success) return toast.error(firstZodMessage(parsed.error));
     setBusy(true);
-    const payload = { doc_type: docType, doc_number: docNumber, full_name: fullName, email: email || null, phone: phone || null, address: address || null };
+    const payload = { doc_type: docType, doc_number: docNumber.trim(), full_name: fullName.trim(), email: email || null, phone: phone || null, address: address || null };
     const { error } = customer
       ? await supabase.from("customers").update(payload).eq("id", customer.id)
       : await supabase.from("customers").insert(payload);
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Guardado");
+    if (error) {
+      if (error.code === "23505") return toast.error("Ya existe un cliente con ese documento");
+      return toast.error(error.message);
+    }
+    toast.success("Cliente guardado correctamente");
     onSaved();
   };
 

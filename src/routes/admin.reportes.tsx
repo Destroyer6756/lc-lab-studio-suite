@@ -2,8 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
-import { Loader2 } from "lucide-react";
+import { Loader2, FileSpreadsheet, FileText } from "lucide-react";
+import { exportToExcel } from "@/lib/excel";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export const Route = createFileRoute("/admin/reportes")({ component: Reports });
 
@@ -13,7 +17,7 @@ function Reports() {
   const { data, isLoading } = useQuery({
     queryKey: ["reports"],
     queryFn: async () => {
-      const { data: orders } = await supabase.from("orders").select("total, payment_method, doc_kind, created_at, status").order("created_at", { ascending: false }).limit(500);
+      const { data: orders } = await supabase.from("orders").select("number, total, payment_method, doc_kind, created_at, status").order("created_at", { ascending: false }).limit(500);
       const valid = (orders ?? []).filter(o => o.status !== "anulado");
 
       const byMonth: Record<string, number> = {};
@@ -32,18 +36,68 @@ function Reports() {
       const docs = Object.entries(byDoc).map(([name, value]) => ({ name, value }));
 
       const totalRev = valid.reduce((s, o) => s + Number(o.total), 0);
-      return { monthly, pay, docs, totalRev, count: valid.length };
+      return { monthly, pay, docs, totalRev, count: valid.length, orders: valid };
     },
   });
 
   if (isLoading) return <div className="grid place-items-center py-20"><Loader2 className="size-8 animate-spin text-gold" /></div>;
 
+  const exportExcel = () => {
+    if (!data) return;
+    exportToExcel(`reporte-lc-lab-${new Date().toISOString().slice(0, 10)}`, [
+      { name: "Resumen", rows: [
+        { Indicador: "Ingresos totales", Valor: data.totalRev.toFixed(2) },
+        { Indicador: "Pedidos válidos", Valor: data.count },
+        { Indicador: "Ticket promedio", Valor: data.count ? (data.totalRev / data.count).toFixed(2) : "0.00" },
+      ]},
+      { name: "Ventas mensuales", rows: data.monthly.map(m => ({ Mes: m.month, Total: m.total })) },
+      { name: "Por método de pago", rows: data.pay.map(p => ({ Método: p.name, Total: p.value })) },
+      { name: "Pedidos", rows: data.orders.map(o => ({
+        Número: o.number, Fecha: new Date(o.created_at).toLocaleString("es-PE"),
+        Comprobante: o.doc_kind, Pago: o.payment_method, Estado: o.status, Total: Number(o.total).toFixed(2),
+      })) },
+    ]);
+  };
+
+  const exportPdf = () => {
+    if (!data) return;
+    const doc = new jsPDF();
+    const gold: [number, number, number] = [201, 168, 76];
+    doc.setFillColor(13, 13, 13);
+    doc.rect(0, 0, 210, 25, "F");
+    doc.setTextColor(...gold);
+    doc.setFontSize(18); doc.setFont("helvetica", "bold");
+    doc.text("LC-LAB — Reporte de ventas", 15, 16);
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    doc.text(`Generado: ${new Date().toLocaleString("es-PE")}`, 15, 33);
+    doc.text(`Ingresos: S/ ${data.totalRev.toFixed(2)}  •  Pedidos: ${data.count}  •  Ticket prom.: S/ ${data.count ? (data.totalRev/data.count).toFixed(2) : "0.00"}`, 15, 40);
+    autoTable(doc, {
+      startY: 48,
+      head: [["N°", "Fecha", "Comprobante", "Pago", "Estado", "Total"]],
+      body: data.orders.map(o => [o.number, new Date(o.created_at).toLocaleDateString("es-PE"), o.doc_kind, o.payment_method, o.status, `S/ ${Number(o.total).toFixed(2)}`]),
+      headStyles: { fillColor: [13, 13, 13], textColor: gold },
+    });
+    doc.save(`reporte-lc-lab-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-bold">Reportes</h1>
-        <p className="text-muted-foreground">Análisis de ventas y operaciones</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Reportes</h1>
+          <p className="text-muted-foreground">Análisis de ventas y operaciones</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportExcel} className="border-gold/30 text-gold hover:bg-gold/10 hover:text-gold">
+            <FileSpreadsheet className="size-4 mr-2" /> Excel
+          </Button>
+          <Button variant="outline" onClick={exportPdf} className="border-gold/30 text-gold hover:bg-gold/10 hover:text-gold">
+            <FileText className="size-4 mr-2" /> PDF
+          </Button>
+        </div>
       </div>
+
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-card border-border"><CardContent className="p-5"><div className="text-xs uppercase tracking-wider text-muted-foreground">Ingresos</div><div className="font-display text-2xl font-bold text-gold mt-2">S/ {data?.totalRev.toFixed(2)}</div></CardContent></Card>

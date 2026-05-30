@@ -43,13 +43,25 @@ function POS() {
   const finalize = async () => {
     if (items.length === 0) return toast.error("Carrito vacío");
     if (!customerId) return toast.error("Selecciona un cliente");
+
+    // Validación de stock client-side
+    for (const i of items) {
+      const p = products.find(pp => pp.id === i.product_id);
+      if (!p) return toast.error(`Producto "${i.name}" ya no existe`);
+      if (i.quantity > (p.stock ?? 0)) {
+        return toast.error(`Stock insuficiente para "${i.name}". Disponible: ${p.stock}`);
+      }
+    }
+
     setBusy(true);
+    let createdOrderId: string | null = null;
     try {
       const { data: order, error } = await supabase.from("orders").insert({
         customer_id: customerId, user_id: user?.id, doc_kind: docKind, payment_method: payment,
         status: "pagado", subtotal, igv, total,
       }).select("*").single();
       if (error) throw error;
+      createdOrderId = order.id;
 
       const itemsPayload = items.map(i => ({
         order_id: order.id, product_id: i.product_id, product_name: i.name,
@@ -84,8 +96,14 @@ function POS() {
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["payment-transactions"] });
+      qc.invalidateQueries({ queryKey: ["products-active"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
       toast.success(autoConfirm ? "Pago confirmado" : "Pago pendiente de confirmación");
     } catch (e) {
+      // Rollback: si se creó la orden pero falló algo después, márcala anulada
+      if (createdOrderId) {
+        await supabase.from("orders").update({ status: "anulado" }).eq("id", createdOrderId);
+      }
       toast.error(e instanceof Error ? e.message : "Error al procesar");
     } finally { setBusy(false); }
   };
@@ -99,19 +117,28 @@ function POS() {
         </div>
         <Input placeholder="Buscar producto..." value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {filtered.map(p => (
-            <button key={p.id} onClick={() => { add({ product_id: p.id, name: p.name, price: Number(p.price) }); toast.success(p.name); }}
-              className="text-left rounded-lg border border-border bg-card hover:border-gold transition-colors overflow-hidden">
-              <div className="aspect-square bg-secondary">
-                {p.image_url ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" /> :
-                  <div className="grid place-items-center h-full text-xs text-muted-foreground">Sin imagen</div>}
-              </div>
-              <div className="p-2">
-                <div className="text-sm font-medium line-clamp-1">{p.name}</div>
-                <div className="text-gold font-semibold text-sm">S/ {Number(p.price).toFixed(2)}</div>
-              </div>
-            </button>
-          ))}
+          {filtered.map(p => {
+            const inCart = items.find(i => i.product_id === p.id)?.quantity ?? 0;
+            const remaining = (p.stock ?? 0) - inCart;
+            const disabled = remaining <= 0;
+            return (
+              <button key={p.id} disabled={disabled}
+                onClick={() => { add({ product_id: p.id, name: p.name, price: Number(p.price) }); toast.success(p.name); }}
+                className="text-left rounded-lg border border-border bg-card hover:border-gold transition-colors overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed">
+                <div className="aspect-square bg-secondary">
+                  {p.image_url ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" /> :
+                    <div className="grid place-items-center h-full text-xs text-muted-foreground">Sin imagen</div>}
+                </div>
+                <div className="p-2">
+                  <div className="text-sm font-medium line-clamp-1">{p.name}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-gold font-semibold text-sm">S/ {Number(p.price).toFixed(2)}</div>
+                    <div className={`text-[10px] ${remaining <= 3 ? "text-destructive" : "text-muted-foreground"}`}>Stock: {p.stock}</div>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
