@@ -43,13 +43,25 @@ function POS() {
   const finalize = async () => {
     if (items.length === 0) return toast.error("Carrito vacío");
     if (!customerId) return toast.error("Selecciona un cliente");
+
+    // Validación de stock client-side
+    for (const i of items) {
+      const p = products.find(pp => pp.id === i.product_id);
+      if (!p) return toast.error(`Producto "${i.name}" ya no existe`);
+      if (i.quantity > (p.stock ?? 0)) {
+        return toast.error(`Stock insuficiente para "${i.name}". Disponible: ${p.stock}`);
+      }
+    }
+
     setBusy(true);
+    let createdOrderId: string | null = null;
     try {
       const { data: order, error } = await supabase.from("orders").insert({
         customer_id: customerId, user_id: user?.id, doc_kind: docKind, payment_method: payment,
         status: "pagado", subtotal, igv, total,
       }).select("*").single();
       if (error) throw error;
+      createdOrderId = order.id;
 
       const itemsPayload = items.map(i => ({
         order_id: order.id, product_id: i.product_id, product_name: i.name,
@@ -84,8 +96,14 @@ function POS() {
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["payment-transactions"] });
+      qc.invalidateQueries({ queryKey: ["products-active"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
       toast.success(autoConfirm ? "Pago confirmado" : "Pago pendiente de confirmación");
     } catch (e) {
+      // Rollback: si se creó la orden pero falló algo después, márcala anulada
+      if (createdOrderId) {
+        await supabase.from("orders").update({ status: "anulado" }).eq("id", createdOrderId);
+      }
       toast.error(e instanceof Error ? e.message : "Error al procesar");
     } finally { setBusy(false); }
   };
