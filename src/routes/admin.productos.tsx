@@ -151,10 +151,15 @@ function ProductDialog({ product, categories, onSaved }: { product: Product | nu
   };
 
   const save = async () => {
-    if (!name || !price) return toast.error("Nombre y precio son obligatorios");
+    const { productSchema, firstZodMessage } = await import("@/lib/validators");
+    const parsed = productSchema.safeParse({
+      name, description, price: Number(price), stock: Number(stock),
+      category_id: categoryId, image_url: imageUrl,
+    });
+    if (!parsed.success) return toast.error(firstZodMessage(parsed.error));
     setBusy(true);
     const payload = {
-      name, description: description || null, price: Number(price), stock: Number(stock),
+      name: name.trim(), description: description || null, price: Number(price), stock: Number(stock),
       category_id: categoryId || null, image_url: imageUrl || null, is_active: true,
     };
     const { error } = product
@@ -162,7 +167,7 @@ function ProductDialog({ product, categories, onSaved }: { product: Product | nu
       : await supabase.from("products").insert(payload);
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success(product ? "Actualizado" : "Producto creado");
+    toast.success(product ? "Producto actualizado" : "Producto creado");
     onSaved();
   };
 
