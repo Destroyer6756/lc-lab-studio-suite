@@ -84,7 +84,17 @@ function ProductsPage() {
       </div>
 
       {isLoading ? (
-        <div className="grid place-items-center py-20"><Loader2 className="size-8 animate-spin text-gold" /></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="overflow-hidden border-border bg-card">
+              <div className="aspect-[4/3] bg-secondary animate-pulse" />
+              <CardContent className="p-4 space-y-2">
+                <div className="h-4 bg-secondary rounded animate-pulse w-3/4" />
+                <div className="h-3 bg-secondary rounded animate-pulse w-1/2" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : shown.length === 0 ? (
         <Card><CardContent className="py-16 text-center text-muted-foreground">Sin productos. Crea el primero.</CardContent></Card>
       ) : (
