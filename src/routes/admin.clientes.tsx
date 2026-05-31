@@ -32,6 +32,7 @@ import {
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/clientes")({ component: CustomersPage });
 
