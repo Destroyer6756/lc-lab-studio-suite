@@ -25,18 +25,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const add: CartCtx["add"] = (item, qty = 1) => {
     setItems((curr) => {
       const ex = curr.find((i) => i.product_id === item.product_id);
-      if (ex) return curr.map((i) => i.product_id === item.product_id ? { ...i, quantity: i.quantity + qty } : i);
+      if (ex)
+        return curr.map((i) =>
+          i.product_id === item.product_id ? { ...i, quantity: i.quantity + qty } : i,
+        );
       return [...curr, { ...item, quantity: qty }];
     });
   };
   const remove = (id: string) => setItems((c) => c.filter((i) => i.product_id !== id));
   const setQty = (id: string, qty: number) =>
-    setItems((c) => c.map((i) => i.product_id === id ? { ...i, quantity: Math.max(1, qty) } : i));
+    setItems((c) => c.map((i) => (i.product_id === id ? { ...i, quantity: Math.max(1, qty) } : i)));
   const clear = () => setItems([]);
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const count = items.reduce((s, i) => s + i.quantity, 0);
 
-  return <Ctx.Provider value={{ items, add, remove, setQty, clear, total, count }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ items, add, remove, setQty, clear, total, count }}>
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export const useCart = () => {

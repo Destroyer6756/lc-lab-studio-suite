@@ -6,7 +6,12 @@ export interface PdfOrder {
   doc_kind: "boleta" | "factura";
   payment_method: string;
   created_at: string;
-  customer?: { full_name: string; doc_type: string; doc_number: string; address?: string | null } | null;
+  customer?: {
+    full_name: string;
+    doc_type: string;
+    doc_number: string;
+    address?: string | null;
+  } | null;
   items: { product_name: string; quantity: number; unit_price: number; subtotal: number }[];
   subtotal: number;
   igv: number;
@@ -51,18 +56,29 @@ export function generateOrderPdf(o: PdfOrder) {
   doc.setFont("helvetica", "normal");
   doc.text(o.customer?.doc_number ?? "—", 35, 48);
   if (o.customer?.address) {
-    doc.setFont("helvetica", "bold"); doc.text("Dirección:", 15, 54);
-    doc.setFont("helvetica", "normal"); doc.text(o.customer.address, 35, 54);
+    doc.setFont("helvetica", "bold");
+    doc.text("Dirección:", 15, 54);
+    doc.setFont("helvetica", "normal");
+    doc.text(o.customer.address, 35, 54);
   }
-  doc.setFont("helvetica", "bold"); doc.text("Fecha:", 140, 42);
-  doc.setFont("helvetica", "normal"); doc.text(new Date(o.created_at).toLocaleString("es-PE"), 158, 42);
-  doc.setFont("helvetica", "bold"); doc.text("Pago:", 140, 48);
-  doc.setFont("helvetica", "normal"); doc.text(o.payment_method.toUpperCase(), 158, 48);
+  doc.setFont("helvetica", "bold");
+  doc.text("Fecha:", 140, 42);
+  doc.setFont("helvetica", "normal");
+  doc.text(new Date(o.created_at).toLocaleString("es-PE"), 158, 42);
+  doc.setFont("helvetica", "bold");
+  doc.text("Pago:", 140, 48);
+  doc.setFont("helvetica", "normal");
+  doc.text(o.payment_method.toUpperCase(), 158, 48);
 
   autoTable(doc, {
     startY: 65,
     head: [["Descripción", "Cant.", "P. Unit.", "Subtotal"]],
-    body: o.items.map((i) => [i.product_name, String(i.quantity), `S/ ${i.unit_price.toFixed(2)}`, `S/ ${i.subtotal.toFixed(2)}`]),
+    body: o.items.map((i) => [
+      i.product_name,
+      String(i.quantity),
+      `S/ ${i.unit_price.toFixed(2)}`,
+      `S/ ${i.subtotal.toFixed(2)}`,
+    ]),
     headStyles: { fillColor: [13, 13, 13], textColor: gold, fontStyle: "bold" },
     bodyStyles: { textColor: [30, 30, 30] },
     alternateRowStyles: { fillColor: [248, 248, 248] },
@@ -86,7 +102,9 @@ export function generateOrderPdf(o: PdfOrder) {
   doc.setFontSize(8);
   doc.setTextColor(120, 120, 120);
   doc.setFont("helvetica", "italic");
-  doc.text("Gracias por su preferencia — LC-LAB Estudio Fotográfico", 105, 285, { align: "center" });
+  doc.text("Gracias por su preferencia — LC-LAB Estudio Fotográfico", 105, 285, {
+    align: "center",
+  });
 
   doc.save(`${o.doc_kind}-${String(o.number).padStart(6, "0")}.pdf`);
 }
