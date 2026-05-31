@@ -191,19 +191,23 @@ function ProductsPage() {
                   >
                     <ShoppingCart className="size-4 mr-1" /> Vender
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => {
-                      setEditing(p);
-                      setOpen(true);
-                    }}
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => remove(p.id)}>
-                    <Trash2 className="size-4 text-destructive" />
-                  </Button>
+                  {isAdmin && (
+                    <>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          setEditing(p);
+                          setOpen(true);
+                        }}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => remove(p.id)}>
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
