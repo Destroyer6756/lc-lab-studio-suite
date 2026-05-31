@@ -102,28 +102,30 @@ function ProductsPage() {
               ))}
             </SelectContent>
           </Select>
-          <Dialog
-            open={open}
-            onOpenChange={(v) => {
-              setOpen(v);
-              if (!v) setEditing(null);
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-gold text-primary-foreground shadow-gold hover:opacity-90">
-                <Plus className="size-4 mr-2" /> Nuevo producto
-              </Button>
-            </DialogTrigger>
-            <ProductDialog
-              product={editing}
-              categories={cats}
-              onSaved={() => {
-                setOpen(false);
-                setEditing(null);
-                qc.invalidateQueries({ queryKey: ["products"] });
+          {isAdmin && (
+            <Dialog
+              open={open}
+              onOpenChange={(v) => {
+                setOpen(v);
+                if (!v) setEditing(null);
               }}
-            />
-          </Dialog>
+            >
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-gold text-primary-foreground shadow-gold hover:opacity-90">
+                  <Plus className="size-4 mr-2" /> Nuevo producto
+                </Button>
+              </DialogTrigger>
+              <ProductDialog
+                product={editing}
+                categories={cats}
+                onSaved={() => {
+                  setOpen(false);
+                  setEditing(null);
+                  qc.invalidateQueries({ queryKey: ["products"] });
+                }}
+              />
+            </Dialog>
+          )}
         </div>
       </div>
 
