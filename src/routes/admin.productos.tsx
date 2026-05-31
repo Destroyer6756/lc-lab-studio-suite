@@ -26,6 +26,7 @@ import { Plus, Pencil, Trash2, Upload, Loader2, ShoppingCart } from "lucide-reac
 import { useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/productos")({ component: ProductsPage });
 
@@ -44,6 +45,7 @@ type Category = { id: string; name: string; slug: string };
 function ProductsPage() {
   const qc = useQueryClient();
   const { add } = useCart();
+  const { isAdmin } = useAuth();
   const [editing, setEditing] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");
@@ -100,28 +102,30 @@ function ProductsPage() {
               ))}
             </SelectContent>
           </Select>
-          <Dialog
-            open={open}
-            onOpenChange={(v) => {
-              setOpen(v);
-              if (!v) setEditing(null);
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-gold text-primary-foreground shadow-gold hover:opacity-90">
-                <Plus className="size-4 mr-2" /> Nuevo producto
-              </Button>
-            </DialogTrigger>
-            <ProductDialog
-              product={editing}
-              categories={cats}
-              onSaved={() => {
-                setOpen(false);
-                setEditing(null);
-                qc.invalidateQueries({ queryKey: ["products"] });
+          {isAdmin && (
+            <Dialog
+              open={open}
+              onOpenChange={(v) => {
+                setOpen(v);
+                if (!v) setEditing(null);
               }}
-            />
-          </Dialog>
+            >
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-gold text-primary-foreground shadow-gold hover:opacity-90">
+                  <Plus className="size-4 mr-2" /> Nuevo producto
+                </Button>
+              </DialogTrigger>
+              <ProductDialog
+                product={editing}
+                categories={cats}
+                onSaved={() => {
+                  setOpen(false);
+                  setEditing(null);
+                  qc.invalidateQueries({ queryKey: ["products"] });
+                }}
+              />
+            </Dialog>
+          )}
         </div>
       </div>
 
@@ -187,19 +191,23 @@ function ProductsPage() {
                   >
                     <ShoppingCart className="size-4 mr-1" /> Vender
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => {
-                      setEditing(p);
-                      setOpen(true);
-                    }}
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => remove(p.id)}>
-                    <Trash2 className="size-4 text-destructive" />
-                  </Button>
+                  {isAdmin && (
+                    <>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          setEditing(p);
+                          setOpen(true);
+                        }}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => remove(p.id)}>
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>

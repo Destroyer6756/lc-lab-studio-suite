@@ -23,6 +23,7 @@ import { FileDown, Loader2, MoreVertical, CheckCircle2, Truck, Ban } from "lucid
 import { generateOrderPdf } from "@/lib/pdf";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/pedidos")({ component: OrdersPage });
 
@@ -54,6 +55,7 @@ const statusColor: Record<string, string> = {
 
 function OrdersPage() {
   const qc = useQueryClient();
+  const { isAdmin } = useAuth();
   const [q, setQ] = useState("");
   const { data = [], isLoading } = useQuery({
     queryKey: ["orders"],
@@ -163,30 +165,32 @@ function OrdersPage() {
                           <FileDown className="size-4 mr-1" />
                           PDF
                         </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="ghost">
-                              <MoreVertical className="size-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setStatus(o.id, "pagado")}>
-                              <CheckCircle2 className="size-4 mr-2" />
-                              Marcar pagado
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setStatus(o.id, "entregado")}>
-                              <Truck className="size-4 mr-2" />
-                              Marcar entregado
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setStatus(o.id, "anulado")}
-                              className="text-destructive"
-                            >
-                              <Ban className="size-4 mr-2" />
-                              Anular
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        {isAdmin && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="icon" variant="ghost">
+                                <MoreVertical className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => setStatus(o.id, "pagado")}>
+                                <CheckCircle2 className="size-4 mr-2" />
+                                Marcar pagado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setStatus(o.id, "entregado")}>
+                                <Truck className="size-4 mr-2" />
+                                Marcar entregado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => setStatus(o.id, "anulado")}
+                                className="text-destructive"
+                              >
+                                <Ban className="size-4 mr-2" />
+                                Anular
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

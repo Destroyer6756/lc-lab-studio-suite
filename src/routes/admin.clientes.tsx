@@ -32,6 +32,7 @@ import {
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/clientes")({ component: CustomersPage });
 
@@ -47,6 +48,7 @@ type Customer = {
 
 function CustomersPage() {
   const qc = useQueryClient();
+  const { isAdmin } = useAuth();
   const [editing, setEditing] = useState<Customer | null>(null);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -147,19 +149,25 @@ function CustomersPage() {
                       {c.phone ?? "—"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditing(c);
-                          setOpen(true);
-                        }}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => remove(c.id)}>
-                        <Trash2 className="size-4 text-destructive" />
-                      </Button>
+                      {isAdmin ? (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditing(c);
+                              setOpen(true);
+                            }}
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" onClick={() => remove(c.id)}>
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
