@@ -23,6 +23,7 @@ import { FileDown, Loader2, MoreVertical, CheckCircle2, Truck, Ban } from "lucid
 import { generateOrderPdf } from "@/lib/pdf";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/pedidos")({ component: OrdersPage });
 
