@@ -165,30 +165,32 @@ function OrdersPage() {
                           <FileDown className="size-4 mr-1" />
                           PDF
                         </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="ghost">
-                              <MoreVertical className="size-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setStatus(o.id, "pagado")}>
-                              <CheckCircle2 className="size-4 mr-2" />
-                              Marcar pagado
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setStatus(o.id, "entregado")}>
-                              <Truck className="size-4 mr-2" />
-                              Marcar entregado
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setStatus(o.id, "anulado")}
-                              className="text-destructive"
-                            >
-                              <Ban className="size-4 mr-2" />
-                              Anular
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        {isAdmin && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="icon" variant="ghost">
+                                <MoreVertical className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => setStatus(o.id, "pagado")}>
+                                <CheckCircle2 className="size-4 mr-2" />
+                                Marcar pagado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setStatus(o.id, "entregado")}>
+                                <Truck className="size-4 mr-2" />
+                                Marcar entregado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => setStatus(o.id, "anulado")}
+                                className="text-destructive"
+                              >
+                                <Ban className="size-4 mr-2" />
+                                Anular
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
