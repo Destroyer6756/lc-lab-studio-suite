@@ -55,6 +55,7 @@ const statusColor: Record<string, string> = {
 
 function OrdersPage() {
   const qc = useQueryClient();
+  const { isAdmin } = useAuth();
   const [q, setQ] = useState("");
   const { data = [], isLoading } = useQuery({
     queryKey: ["orders"],
