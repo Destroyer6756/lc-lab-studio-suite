@@ -34,8 +34,12 @@ function LoginPage() {
         toast.success("Bienvenido a LC-LAB");
       } else {
         const { error } = await supabase.auth.signUp({
-          email, password,
-          options: { emailRedirectTo: `${window.location.origin}/admin`, data: { full_name: name } },
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/admin`,
+            data: { full_name: name },
+          },
         });
         if (error) throw error;
         toast.success("Cuenta creada. Ya puedes iniciar sesión.");
@@ -51,7 +55,13 @@ function LoginPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-card to-background border-r border-border relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, var(--gold) 0%, transparent 50%), radial-gradient(circle at 80% 70%, var(--gold) 0%, transparent 50%)" }} />
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 30%, var(--gold) 0%, transparent 50%), radial-gradient(circle at 80% 70%, var(--gold) 0%, transparent 50%)",
+          }}
+        />
         <div className="relative">
           <div className="flex items-center gap-3">
             <div className="size-12 rounded-xl bg-gradient-gold grid place-items-center shadow-gold">
@@ -65,13 +75,17 @@ function LoginPage() {
         </div>
         <div className="relative space-y-4">
           <h2 className="font-display text-4xl font-bold leading-tight">
-            Gestión profesional<br />de tu <span className="text-gold">estudio fotográfico</span>
+            Gestión profesional
+            <br />
+            de tu <span className="text-gold">estudio fotográfico</span>
           </h2>
           <p className="text-muted-foreground max-w-md">
             Productos, reservas, pedidos, boletas y facturas — todo en un solo panel.
           </p>
         </div>
-        <div className="relative text-xs text-muted-foreground">© LC-LAB · Sistema administrativo</div>
+        <div className="relative text-xs text-muted-foreground">
+          © LC-LAB · Sistema administrativo
+        </div>
       </div>
 
       <div className="flex items-center justify-center p-6">
@@ -89,31 +103,65 @@ function LoginPage() {
               {mode === "signup" && (
                 <div className="space-y-2">
                   <Label htmlFor="name">Nombre completo</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
                 </div>
               )}
               <div className="space-y-2">
                 <Label htmlFor="email">Correo</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Contraseña</Label>
-                <Input id="password" type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <Input
+                  id="password"
+                  type="password"
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
-              <Button type="submit" disabled={busy} className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90 shadow-gold">
+              <Button
+                type="submit"
+                disabled={busy}
+                className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90 shadow-gold"
+              >
                 {busy && <Loader2 className="size-4 mr-2 animate-spin" />}
                 {mode === "login" ? "Ingresar" : "Crear cuenta"}
               </Button>
             </form>
             <div className="mt-4 text-sm text-center text-muted-foreground">
               {mode === "login" ? (
-                <>¿Sin cuenta? <button className="text-gold hover:underline" onClick={() => setMode("signup")}>Regístrate</button></>
+                <>
+                  ¿Sin cuenta?{" "}
+                  <button className="text-gold hover:underline" onClick={() => setMode("signup")}>
+                    Regístrate
+                  </button>
+                </>
               ) : (
-                <>¿Ya tienes cuenta? <button className="text-gold hover:underline" onClick={() => setMode("login")}>Inicia sesión</button></>
+                <>
+                  ¿Ya tienes cuenta?{" "}
+                  <button className="text-gold hover:underline" onClick={() => setMode("login")}>
+                    Inicia sesión
+                  </button>
+                </>
               )}
             </div>
             <div className="mt-2 text-xs text-center text-muted-foreground">
-              <Link to="/admin" className="hover:text-gold">← Volver</Link>
+              <Link to="/admin" className="hover:text-gold">
+                ← Volver
+              </Link>
             </div>
           </CardContent>
         </Card>

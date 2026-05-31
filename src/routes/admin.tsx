@@ -27,11 +27,17 @@ function AdminRoot() {
       <div className="min-h-screen grid place-items-center bg-background px-4 text-center">
         <div>
           <h2 className="font-display text-2xl mb-2">Acceso restringido</h2>
-          <p className="text-muted-foreground">Tu cuenta no tiene permisos. Contacta al administrador.</p>
+          <p className="text-muted-foreground">
+            Tu cuenta no tiene permisos. Contacta al administrador.
+          </p>
         </div>
       </div>
     );
   }
 
-  return <AdminLayout><Outlet /></AdminLayout>;
+  return (
+    <AdminLayout>
+      <Outlet />
+    </AdminLayout>
+  );
 }
