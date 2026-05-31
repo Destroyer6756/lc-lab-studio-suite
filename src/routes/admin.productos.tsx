@@ -26,6 +26,7 @@ import { Plus, Pencil, Trash2, Upload, Loader2, ShoppingCart } from "lucide-reac
 import { useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/productos")({ component: ProductsPage });
 
