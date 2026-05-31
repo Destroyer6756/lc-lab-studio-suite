@@ -45,6 +45,7 @@ type Category = { id: string; name: string; slug: string };
 function ProductsPage() {
   const qc = useQueryClient();
   const { add } = useCart();
+  const { isAdmin } = useAuth();
   const [editing, setEditing] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");
