@@ -9,6 +9,7 @@ import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import quinceaneraImg from "@/assets/quinceanera-login.jpg";
+import lcLabLogo from "@/assets/lc-lab-logo.jpeg.asset.json";
 
 export const Route = createFileRoute("/login")({ component: LoginPage });
 
