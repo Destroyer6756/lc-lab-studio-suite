@@ -64,12 +64,19 @@ function LoginPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-br from-background/85 via-background/55 to-background/85" />
         <div className="relative">
-          <img
-            src={lcLabLogo.url}
-            alt="Inversiones LC LAB - Fotografía Profesional"
-            className="w-48 h-auto object-contain drop-shadow-2xl"
-          />
-          <div className="mt-3 text-xs uppercase tracking-widest text-gold">Fotografía Profesional</div>
+          <div className="flex items-center gap-3">
+            <div className="size-14 rounded-xl bg-white/95 p-1.5 shadow-gold flex items-center justify-center shrink-0">
+              <img
+                src={lcLabLogo.url}
+                alt="Inversiones LC LAB"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div>
+              <div className="font-display font-bold text-2xl leading-tight">INVERSIONES LC LAB</div>
+              <div className="text-xs uppercase tracking-widest text-gold">Fotografía Profesional</div>
+            </div>
+          </div>
         </div>
         <div className="relative space-y-4">
           <h2 className="font-display text-4xl font-bold leading-tight">
