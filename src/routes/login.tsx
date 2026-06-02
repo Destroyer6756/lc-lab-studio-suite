@@ -9,7 +9,7 @@ import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import quinceaneraImg from "@/assets/quinceanera-login.jpg";
-import lcLabLogo from "@/assets/lc-lab-logo.jpeg.asset.json";
+import lcLabLogo from "@/assets/lc-lab-logo-v2.png.asset.json";
 
 export const Route = createFileRoute("/login")({ component: LoginPage });
 
@@ -64,17 +64,12 @@ function LoginPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-br from-background/85 via-background/55 to-background/85" />
         <div className="relative">
-          <div className="flex items-center gap-3">
-            <img
-              src={lcLabLogo.url}
-              alt="Inversiones LC LAB"
-              className="size-14 rounded-xl object-contain bg-white/95 p-1 shadow-gold"
-            />
-            <div>
-              <div className="font-display font-bold text-2xl">INVERSIONES LC LAB</div>
-              <div className="text-xs uppercase tracking-widest text-gold">Fotografía Profesional</div>
-            </div>
-          </div>
+          <img
+            src={lcLabLogo.url}
+            alt="Inversiones LC LAB - Fotografía Profesional"
+            className="w-48 h-auto object-contain drop-shadow-2xl"
+          />
+          <div className="mt-3 text-xs uppercase tracking-widest text-gold">Fotografía Profesional</div>
         </div>
         <div className="relative space-y-4">
           <h2 className="font-display text-4xl font-bold leading-tight">
