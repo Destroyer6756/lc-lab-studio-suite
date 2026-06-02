@@ -9,6 +9,7 @@ import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import quinceaneraImg from "@/assets/quinceanera-login.jpg";
+import lcLabLogo from "@/assets/lc-lab-logo.jpeg.asset.json";
 
 export const Route = createFileRoute("/login")({ component: LoginPage });
 
@@ -64,27 +65,29 @@ function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-background/85 via-background/55 to-background/85" />
         <div className="relative">
           <div className="flex items-center gap-3">
-            <div className="size-12 rounded-xl bg-gradient-gold grid place-items-center shadow-gold">
-              <Camera className="size-6 text-primary-foreground" />
-            </div>
+            <img
+              src={lcLabLogo.url}
+              alt="Inversiones LC LAB"
+              className="size-14 rounded-xl object-contain bg-white/95 p-1 shadow-gold"
+            />
             <div>
-              <div className="font-display font-bold text-2xl">LC-LAB</div>
-              <div className="text-xs uppercase tracking-widest text-gold">Estudio Fotográfico</div>
+              <div className="font-display font-bold text-2xl">INVERSIONES LC LAB</div>
+              <div className="text-xs uppercase tracking-widest text-gold">Fotografía Profesional</div>
             </div>
           </div>
         </div>
         <div className="relative space-y-4">
           <h2 className="font-display text-4xl font-bold leading-tight">
-            Gestión profesional
+            Capturamos momentos,
             <br />
-            de tu <span className="text-gold">estudio fotográfico</span>
+            <span className="text-gold">generamos valor</span>
           </h2>
           <p className="text-muted-foreground max-w-md">
             Productos, reservas, pedidos, boletas y facturas — todo en un solo panel.
           </p>
         </div>
         <div className="relative text-xs text-muted-foreground">
-          © LC-LAB · Sistema administrativo
+          © Inversiones LC LAB · Fotografía Profesional
         </div>
       </div>
 
