@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
+import quinceaneraImg from "@/assets/quinceanera-login.jpg";
 
 export const Route = createFileRoute("/login")({ component: LoginPage });
 
@@ -54,14 +55,13 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
-      <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-card to-background border-r border-border relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 30%, var(--gold) 0%, transparent 50%), radial-gradient(circle at 80% 70%, var(--gold) 0%, transparent 50%)",
-          }}
+      <div className="hidden lg:flex flex-col justify-between p-12 border-r border-border relative overflow-hidden">
+        <img
+          src={quinceaneraImg}
+          alt="Sesión fotográfica de quinceañera"
+          className="absolute inset-0 w-full h-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/85 via-background/55 to-background/85" />
         <div className="relative">
           <div className="flex items-center gap-3">
             <div className="size-12 rounded-xl bg-gradient-gold grid place-items-center shadow-gold">
