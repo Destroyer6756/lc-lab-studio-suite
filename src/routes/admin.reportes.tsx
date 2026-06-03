@@ -59,11 +59,19 @@ function Reports() {
         value: Number(value.toFixed(2)),
       }));
 
-      const byDoc: Record<string, number> = {};
+      const byDoc: Record<string, { count: number; total: number }> = {};
       valid.forEach((o) => {
-        byDoc[o.doc_kind] = (byDoc[o.doc_kind] ?? 0) + 1;
+        const k = o.doc_kind;
+        if (!byDoc[k]) byDoc[k] = { count: 0, total: 0 };
+        byDoc[k].count += 1;
+        byDoc[k].total += Number(o.total);
       });
-      const docs = Object.entries(byDoc).map(([name, value]) => ({ name, value }));
+      const docs = Object.entries(byDoc).map(([name, v]) => ({
+        name,
+        value: v.count,
+        total: Number(v.total.toFixed(2)),
+      }));
+
 
       const totalRev = valid.reduce((s, o) => s + Number(o.total), 0);
       return { monthly, pay, docs, totalRev, count: valid.length, orders: valid };
