@@ -19,7 +19,7 @@ import autoTable from "jspdf-autotable";
 
 export const Route = createFileRoute("/admin/reportes")({ component: Reports });
 
-const colors = ["#c9a84c", "#f0d78c", "#8b7a3a", "#5c5028"];
+
 
 function Reports() {
   const { data, isLoading } = useQuery({
