@@ -116,6 +116,7 @@ function ProductsPage() {
                 </Button>
               </DialogTrigger>
               <ProductDialog
+                key={editing?.id ?? "new"}
                 product={editing}
                 categories={cats}
                 onSaved={() => {
