@@ -6,15 +6,11 @@ import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  Legend,
 } from "recharts";
 import { Loader2, FileSpreadsheet, FileText } from "lucide-react";
 import { exportToExcel } from "@/lib/excel";
@@ -23,7 +19,7 @@ import autoTable from "jspdf-autotable";
 
 export const Route = createFileRoute("/admin/reportes")({ component: Reports });
 
-const colors = ["#c9a84c", "#f0d78c", "#8b7a3a", "#5c5028"];
+
 
 function Reports() {
   const { data, isLoading } = useQuery({
@@ -59,11 +55,19 @@ function Reports() {
         value: Number(value.toFixed(2)),
       }));
 
-      const byDoc: Record<string, number> = {};
+      const byDoc: Record<string, { count: number; total: number }> = {};
       valid.forEach((o) => {
-        byDoc[o.doc_kind] = (byDoc[o.doc_kind] ?? 0) + 1;
+        const k = o.doc_kind;
+        if (!byDoc[k]) byDoc[k] = { count: 0, total: 0 };
+        byDoc[k].count += 1;
+        byDoc[k].total += Number(o.total);
       });
-      const docs = Object.entries(byDoc).map(([name, value]) => ({ name, value }));
+      const docs = Object.entries(byDoc).map(([name, v]) => ({
+        name,
+        value: v.count,
+        total: Number(v.total.toFixed(2)),
+      }));
+
 
       const totalRev = valid.reduce((s, o) => s + Number(o.total), 0);
       return { monthly, pay, docs, totalRev, count: valid.length, orders: valid };
@@ -237,34 +241,50 @@ function Reports() {
         </Card>
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="font-display">Por método de pago</CardTitle>
+            <CardTitle className="font-display">Boletas vs Facturas</CardTitle>
           </CardHeader>
-          <CardContent className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data?.pay ?? []}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {(data?.pay ?? []).map((_, i) => (
-                    <Cell key={i} fill={colors[i % colors.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--card)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 8,
-                  }}
-                />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+          <CardContent>
+            {(() => {
+              const boleta = data?.docs.find((d) => d.name === "boleta") ?? { value: 0, total: 0 };
+              const factura = data?.docs.find((d) => d.name === "factura") ?? { value: 0, total: 0 };
+              const totalCount = boleta.value + factura.value;
+              const totalAmount = boleta.total + factura.total;
+              const rows = [
+                { label: "Boletas", count: boleta.value, total: boleta.total },
+                { label: "Facturas", count: factura.value, total: factura.total },
+              ];
+              return (
+                <div className="overflow-hidden rounded-lg border border-border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40">
+                      <tr className="text-left">
+                        <th className="px-4 py-3 font-medium text-muted-foreground">Comprobante</th>
+                        <th className="px-4 py-3 font-medium text-muted-foreground text-center">Cantidad</th>
+                        <th className="px-4 py-3 font-medium text-muted-foreground text-right">Monto total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r) => (
+                        <tr key={r.label} className="border-t border-border">
+                          <td className="px-4 py-3 font-medium">{r.label}</td>
+                          <td className="px-4 py-3 text-center font-display text-lg">{r.count}</td>
+                          <td className="px-4 py-3 text-right font-display text-lg text-gold">
+                            S/ {r.total.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="border-t border-border bg-muted/30">
+                        <td className="px-4 py-3 font-bold uppercase tracking-wider text-xs">Total</td>
+                        <td className="px-4 py-3 text-center font-display text-xl font-bold">{totalCount}</td>
+                        <td className="px-4 py-3 text-right font-display text-xl font-bold text-gold">
+                          S/ {totalAmount.toFixed(2)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
