@@ -190,13 +190,7 @@ export function generateOrderPdf(o: PdfOrder) {
   doc.text(`COMPROBANTE: ${numero}`, 15, infoY + 15);
 
   doc.setFont("helvetica", "normal");
-  doc.setTextColor(...gray);
-  doc.setFontSize(8);
-  const nota = isFactura
-    ? "REPRESENTACIÓN IMPRESA DE LA FACTURA ELECTRÓNICA. CONSULTE SU VALIDEZ EN SUNAT."
-    : "REPRESENTACIÓN IMPRESA DE LA BOLETA DE VENTA ELECTRÓNICA.";
-  doc.text(nota, 15, infoY + 24);
-  doc.text("Gracias por su preferencia — LCLAB S.A.C.", 15, infoY + 29);
+
 
   doc.save(`${o.doc_kind}-${numero}.pdf`);
 }
