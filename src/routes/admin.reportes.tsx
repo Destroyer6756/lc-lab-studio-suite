@@ -6,15 +6,11 @@ import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  Legend,
 } from "recharts";
 import { Loader2, FileSpreadsheet, FileText } from "lucide-react";
 import { exportToExcel } from "@/lib/excel";
