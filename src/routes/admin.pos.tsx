@@ -195,7 +195,7 @@ function POS() {
               >
                 <div className="aspect-square bg-secondary">
                   {p.image_url ? (
-                    <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                    <img src={p.image_url} alt={p.name} className="w-full h-full object-contain p-1" />
                   ) : (
                     <div className="grid place-items-center h-full text-xs text-muted-foreground">
                       Sin imagen

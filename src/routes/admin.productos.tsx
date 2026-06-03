@@ -156,7 +156,7 @@ function ProductsPage() {
                   <img
                     src={p.image_url}
                     alt={p.name}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
                   />
                 ) : (
                   <div className="grid place-items-center h-full text-muted-foreground text-xs">
