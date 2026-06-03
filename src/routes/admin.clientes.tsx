@@ -107,6 +107,7 @@ function CustomersPage() {
               </Button>
             </DialogTrigger>
             <CustomerDialog
+              key={editing?.id ?? "new"}
               customer={editing}
               onSaved={() => {
                 setOpen(false);
