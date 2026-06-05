@@ -180,6 +180,10 @@ function OrdersPage() {
                           <FileDown className="size-4 mr-1" />
                           PDF
                         </Button>
+                        <Button size="sm" variant="ghost" onClick={() => ticket(o)} title="Imprimir ticket 80mm">
+                          <Printer className="size-4 mr-1" />
+                          Ticket
+                        </Button>
                         {isAdmin && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
