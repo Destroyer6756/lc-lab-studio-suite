@@ -20,8 +20,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FileDown, Loader2, MoreVertical, CheckCircle2, Truck, Ban, Printer } from "lucide-react";
-import { generateOrderPdf } from "@/lib/pdf";
-import { printOrderTicket } from "@/lib/ticket";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -73,7 +71,8 @@ function OrdersPage() {
     },
   });
 
-  const print = (o: Order) => {
+  const print = async (o: Order) => {
+    const { generateOrderPdf } = await import("@/lib/pdf");
     generateOrderPdf({
       number: o.number,
       doc_kind: o.doc_kind as "boleta" | "factura",
@@ -88,7 +87,8 @@ function OrdersPage() {
     toast.success("PDF generado");
   };
 
-  const ticket = (o: Order) => {
+  const ticket = async (o: Order) => {
+    const { printOrderTicket } = await import("@/lib/ticket");
     printOrderTicket({
       number: o.number,
       doc_kind: o.doc_kind as "boleta" | "factura",
