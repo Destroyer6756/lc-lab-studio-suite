@@ -41,6 +41,7 @@ function POS() {
   const [docKind, setDocKind] = useState<"boleta" | "factura">("boleta");
   const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta">("efectivo");
   const [busy, setBusy] = useState(false);
+  const [printTicket, setPrintTicket] = useState(true);
   const [q, setQ] = useState("");
 
   const { data: products = [] } = useQuery({
