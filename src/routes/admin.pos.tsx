@@ -129,7 +129,7 @@ function POS() {
       }
 
       const cust = customers.find((c) => c.id === customerId);
-      generateOrderPdf({
+      const pdfData = {
         number: order.number,
         doc_kind: docKind,
         payment_method: payment,
@@ -151,7 +151,10 @@ function POS() {
         subtotal,
         igv,
         total,
-      });
+      };
+      generateOrderPdf(pdfData);
+      if (printTicket) printOrderTicket(pdfData);
+
 
       toast.success(`${docKind === "factura" ? "Factura" : "Boleta"} N° ${order.number} generada`);
       clear();
