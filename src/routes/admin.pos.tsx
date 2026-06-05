@@ -27,8 +27,6 @@ import {
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
 import { toast } from "sonner";
-import { generateOrderPdf } from "@/lib/pdf";
-import { printOrderTicket } from "@/lib/ticket";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/pos")({ component: POS });
@@ -152,8 +150,12 @@ function POS() {
         igv,
         total,
       };
+      const [{ generateOrderPdf }, ticketMod] = await Promise.all([
+        import("@/lib/pdf"),
+        printTicket ? import("@/lib/ticket") : Promise.resolve(null as any),
+      ]);
       generateOrderPdf(pdfData);
-      if (printTicket) printOrderTicket(pdfData);
+      if (printTicket && ticketMod) ticketMod.printOrderTicket(pdfData);
 
 
       toast.success(`${docKind === "factura" ? "Factura" : "Boleta"} N° ${order.number} generada`);

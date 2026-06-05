@@ -4,7 +4,9 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, Users, Calendar, DollarSign, TrendingUp, AlertTriangle } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
+import { lazy, Suspense } from "react";
+
+const SalesBarChart = lazy(() => import("@/components/SalesBarChart"));
 
 export const Route = createFileRoute("/admin/")({ component: Dashboard });
 
@@ -113,22 +115,9 @@ function Dashboard() {
         </CardHeader>
         <CardContent className="h-80">
           {data?.chart && data.chart.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.chart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="day" stroke="var(--muted-foreground)" fontSize={12} />
-                <YAxis stroke="var(--muted-foreground)" fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--card)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 8,
-                  }}
-                  formatter={(v: number) => [`S/ ${v.toFixed(2)}`, "Total"]}
-                />
-                <Bar dataKey="total" fill="var(--gold)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<div className="h-full grid place-items-center text-muted-foreground">Cargando gráfico...</div>}>
+              <SalesBarChart data={data.chart} />
+            </Suspense>
           ) : (
             <div className="h-full grid place-items-center text-muted-foreground">
               Sin datos aún

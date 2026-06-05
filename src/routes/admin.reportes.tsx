@@ -13,9 +13,6 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Loader2, FileSpreadsheet, FileText } from "lucide-react";
-import { exportToExcel } from "@/lib/excel";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 export const Route = createFileRoute("/admin/reportes")({ component: Reports });
 
@@ -81,7 +78,8 @@ function Reports() {
       </div>
     );
 
-  const exportExcel = () => {
+  const exportExcel = async () => {
+    const { exportToExcel } = await import("@/lib/excel");
     if (!data) return;
     exportToExcel(`reporte-lc-lab-${new Date().toISOString().slice(0, 10)}`, [
       {
@@ -117,8 +115,12 @@ function Reports() {
     ]);
   };
 
-  const exportPdf = () => {
+  const exportPdf = async () => {
     if (!data) return;
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
     const doc = new jsPDF();
     const gold: [number, number, number] = [201, 168, 76];
     doc.setFillColor(13, 13, 13);
