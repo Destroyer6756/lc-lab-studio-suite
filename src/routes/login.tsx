@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import quinceaneraImg from "@/assets/quinceanera-login.jpg";
+import quinceaneraImg from "@/assets/quinceanera-priscilla.jpg.asset.json";
 import lcLabLogo from "@/assets/lc-lab-logo-v2.png.asset.json";
 
 export const Route = createFileRoute("/login")({ component: LoginPage });
