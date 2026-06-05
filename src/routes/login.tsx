@@ -60,9 +60,9 @@ function LoginPage() {
         <img
           src={quinceaneraImg.url}
           alt="Sesión fotográfica de quinceañera"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover object-[center_20%]"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/85 via-background/55 to-background/85" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/75 via-background/35 to-background/90" />
         <div className="relative">
           <div className="flex items-center gap-3">
             <div className="size-14 rounded-xl bg-white/95 p-1.5 shadow-gold flex items-center justify-center shrink-0">
