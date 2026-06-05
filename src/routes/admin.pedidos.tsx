@@ -88,6 +88,20 @@ function OrdersPage() {
     toast.success("PDF generado");
   };
 
+  const ticket = (o: Order) => {
+    printOrderTicket({
+      number: o.number,
+      doc_kind: o.doc_kind as "boleta" | "factura",
+      payment_method: o.payment_method,
+      created_at: o.created_at,
+      customer: o.customer,
+      items: o.order_items,
+      subtotal: Number(o.subtotal),
+      igv: Number(o.igv),
+      total: Number(o.total),
+    });
+  };
+
   const setStatus = async (id: string, status: "pagado" | "entregado" | "anulado") => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
