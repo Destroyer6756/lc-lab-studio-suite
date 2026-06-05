@@ -19,8 +19,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileDown, Loader2, MoreVertical, CheckCircle2, Truck, Ban } from "lucide-react";
+import { FileDown, Loader2, MoreVertical, CheckCircle2, Truck, Ban, Printer } from "lucide-react";
 import { generateOrderPdf } from "@/lib/pdf";
+import { printOrderTicket } from "@/lib/ticket";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -85,6 +86,20 @@ function OrdersPage() {
       total: Number(o.total),
     });
     toast.success("PDF generado");
+  };
+
+  const ticket = (o: Order) => {
+    printOrderTicket({
+      number: o.number,
+      doc_kind: o.doc_kind as "boleta" | "factura",
+      payment_method: o.payment_method,
+      created_at: o.created_at,
+      customer: o.customer,
+      items: o.order_items,
+      subtotal: Number(o.subtotal),
+      igv: Number(o.igv),
+      total: Number(o.total),
+    });
   };
 
   const setStatus = async (id: string, status: "pagado" | "entregado" | "anulado") => {
@@ -164,6 +179,10 @@ function OrdersPage() {
                         <Button size="sm" variant="ghost" onClick={() => print(o)}>
                           <FileDown className="size-4 mr-1" />
                           PDF
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => ticket(o)} title="Imprimir ticket 80mm">
+                          <Printer className="size-4 mr-1" />
+                          Ticket
                         </Button>
                         {isAdmin && (
                           <DropdownMenu>

@@ -28,6 +28,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
 import { toast } from "sonner";
 import { generateOrderPdf } from "@/lib/pdf";
+import { printOrderTicket } from "@/lib/ticket";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/pos")({ component: POS });
@@ -40,6 +41,7 @@ function POS() {
   const [docKind, setDocKind] = useState<"boleta" | "factura">("boleta");
   const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta">("efectivo");
   const [busy, setBusy] = useState(false);
+  const [printTicket, setPrintTicket] = useState(true);
   const [q, setQ] = useState("");
 
   const { data: products = [] } = useQuery({
@@ -127,7 +129,7 @@ function POS() {
       }
 
       const cust = customers.find((c) => c.id === customerId);
-      generateOrderPdf({
+      const pdfData = {
         number: order.number,
         doc_kind: docKind,
         payment_method: payment,
@@ -149,7 +151,10 @@ function POS() {
         subtotal,
         igv,
         total,
-      });
+      };
+      generateOrderPdf(pdfData);
+      if (printTicket) printOrderTicket(pdfData);
+
 
       toast.success(`${docKind === "factura" ? "Factura" : "Boleta"} N° ${order.number} generada`);
       clear();
@@ -357,12 +362,21 @@ function POS() {
               <span className="text-gold">S/ {total.toFixed(2)}</span>
             </div>
           </div>
+          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={printTicket}
+              onChange={(e) => setPrintTicket(e.target.checked)}
+              className="accent-gold size-4"
+            />
+            Imprimir ticket (80mm)
+          </label>
           <Button
             onClick={finalize}
             disabled={busy || items.length === 0}
             className="w-full bg-gradient-gold text-primary-foreground shadow-gold hover:opacity-90 h-11"
           >
-            {busy && <Loader2 className="size-4 mr-2 animate-spin" />}Cobrar y generar PDF
+            {busy && <Loader2 className="size-4 mr-2 animate-spin" />}Cobrar y generar comprobante
           </Button>
         </CardContent>
       </Card>
