@@ -28,6 +28,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
 import { toast } from "sonner";
 import { generateOrderPdf } from "@/lib/pdf";
+import { printOrderTicket } from "@/lib/ticket";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin/pos")({ component: POS });
