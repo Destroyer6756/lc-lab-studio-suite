@@ -362,12 +362,21 @@ function POS() {
               <span className="text-gold">S/ {total.toFixed(2)}</span>
             </div>
           </div>
+          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={printTicket}
+              onChange={(e) => setPrintTicket(e.target.checked)}
+              className="accent-gold size-4"
+            />
+            Imprimir ticket (80mm)
+          </label>
           <Button
             onClick={finalize}
             disabled={busy || items.length === 0}
             className="w-full bg-gradient-gold text-primary-foreground shadow-gold hover:opacity-90 h-11"
           >
-            {busy && <Loader2 className="size-4 mr-2 animate-spin" />}Cobrar y generar PDF
+            {busy && <Loader2 className="size-4 mr-2 animate-spin" />}Cobrar y generar comprobante
           </Button>
         </CardContent>
       </Card>
