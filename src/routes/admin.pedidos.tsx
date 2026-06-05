@@ -19,8 +19,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileDown, Loader2, MoreVertical, CheckCircle2, Truck, Ban } from "lucide-react";
+import { FileDown, Loader2, MoreVertical, CheckCircle2, Truck, Ban, Printer } from "lucide-react";
 import { generateOrderPdf } from "@/lib/pdf";
+import { printOrderTicket } from "@/lib/ticket";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
