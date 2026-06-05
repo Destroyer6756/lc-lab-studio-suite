@@ -58,7 +58,7 @@ function LoginPage() {
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="hidden lg:flex flex-col justify-between p-12 border-r border-border relative overflow-hidden">
         <img
-          src={quinceaneraImg}
+          src={quinceaneraImg.url}
           alt="Sesión fotográfica de quinceañera"
           className="absolute inset-0 w-full h-full object-cover"
         />
