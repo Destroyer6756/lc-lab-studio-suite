@@ -368,15 +368,31 @@ function POS() {
               <span className="text-gold">S/ {total.toFixed(2)}</span>
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={printTicket}
-              onChange={(e) => setPrintTicket(e.target.checked)}
-              className="accent-gold size-4"
-            />
-            Imprimir ticket (80mm)
-          </label>
+          <div>
+            <Label className="text-xs mb-1.5 block">Impresora / formato</Label>
+            <Select
+              value={printFormat}
+              onValueChange={(v) => {
+                const f = v as "none" | "a4" | "80mm" | "58mm";
+                setPrintFormat(f);
+                if (typeof window !== "undefined")
+                  window.localStorage.setItem("lclab.print.format.pos", f);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="a4">Impresora A4 (oficina)</SelectItem>
+                <SelectItem value="80mm">Tiquetera 80mm</SelectItem>
+                <SelectItem value="58mm">Tiquetera 58mm</SelectItem>
+                <SelectItem value="none">No imprimir (solo PDF)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Se enviará a la impresora predeterminada de tu PC con ese tamaño de papel.
+            </p>
+          </div>
           <Button
             onClick={finalize}
             disabled={busy || items.length === 0}
