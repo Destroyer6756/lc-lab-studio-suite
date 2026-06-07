@@ -23,7 +23,7 @@ export function setPreferredPrintFormat(f: TicketFormat) {
   window.localStorage.setItem(PRINT_FORMAT_KEY, f);
 }
 
-export function printOrderTicket(o: PdfOrder, format: TicketFormat = getPreferredPrintFormat()) {
+export function renderTicketHtml(o: PdfOrder, format: TicketFormat): string {
   const isFactura = o.doc_kind === "factura";
   const serie = isFactura ? "F001" : "B001";
   const numero = `${serie}-${String(o.number).padStart(8, "0")}`;
