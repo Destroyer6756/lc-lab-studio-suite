@@ -183,10 +183,25 @@ function OrdersPage() {
                           <FileDown className="size-4 mr-1" />
                           PDF
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => ticket(o)} title="Imprimir ticket 80mm">
-                          <Printer className="size-4 mr-1" />
-                          Ticket
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost" title="Imprimir">
+                              <Printer className="size-4 mr-1" />
+                              Imprimir
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => ticket(o, "a4")}>
+                              Impresora A4
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => ticket(o, "80mm")}>
+                              Tiquetera 80mm
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => ticket(o, "58mm")}>
+                              Tiquetera 58mm
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         {isAdmin && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
