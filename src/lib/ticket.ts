@@ -222,7 +222,8 @@ export function renderTicketHtml(o: PdfOrder, format: TicketFormat): string {
       setTimeout(function(){ window.close(); }, 500);
     };
   </script>
-</body>
+  </body>
+</html>`;
   return html;
 }
 
