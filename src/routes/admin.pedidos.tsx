@@ -87,19 +87,22 @@ function OrdersPage() {
     toast.success("PDF generado");
   };
 
-  const ticket = async (o: Order) => {
+  const ticket = async (o: Order, format: "a4" | "80mm" | "58mm") => {
     const { printOrderTicket } = await import("@/lib/ticket");
-    printOrderTicket({
-      number: o.number,
-      doc_kind: o.doc_kind as "boleta" | "factura",
-      payment_method: o.payment_method,
-      created_at: o.created_at,
-      customer: o.customer,
-      items: o.order_items,
-      subtotal: Number(o.subtotal),
-      igv: Number(o.igv),
-      total: Number(o.total),
-    });
+    printOrderTicket(
+      {
+        number: o.number,
+        doc_kind: o.doc_kind as "boleta" | "factura",
+        payment_method: o.payment_method,
+        created_at: o.created_at,
+        customer: o.customer,
+        items: o.order_items,
+        subtotal: Number(o.subtotal),
+        igv: Number(o.igv),
+        total: Number(o.total),
+      },
+      format,
+    );
   };
 
   const setStatus = async (id: string, status: "pagado" | "entregado" | "anulado") => {
@@ -180,10 +183,25 @@ function OrdersPage() {
                           <FileDown className="size-4 mr-1" />
                           PDF
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => ticket(o)} title="Imprimir ticket 80mm">
-                          <Printer className="size-4 mr-1" />
-                          Ticket
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost" title="Imprimir">
+                              <Printer className="size-4 mr-1" />
+                              Imprimir
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => ticket(o, "a4")}>
+                              Impresora A4
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => ticket(o, "80mm")}>
+                              Tiquetera 80mm
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => ticket(o, "58mm")}>
+                              Tiquetera 58mm
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         {isAdmin && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
