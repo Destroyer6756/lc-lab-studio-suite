@@ -87,19 +87,22 @@ function OrdersPage() {
     toast.success("PDF generado");
   };
 
-  const ticket = async (o: Order) => {
+  const ticket = async (o: Order, format: "a4" | "80mm" | "58mm") => {
     const { printOrderTicket } = await import("@/lib/ticket");
-    printOrderTicket({
-      number: o.number,
-      doc_kind: o.doc_kind as "boleta" | "factura",
-      payment_method: o.payment_method,
-      created_at: o.created_at,
-      customer: o.customer,
-      items: o.order_items,
-      subtotal: Number(o.subtotal),
-      igv: Number(o.igv),
-      total: Number(o.total),
-    });
+    printOrderTicket(
+      {
+        number: o.number,
+        doc_kind: o.doc_kind as "boleta" | "factura",
+        payment_method: o.payment_method,
+        created_at: o.created_at,
+        customer: o.customer,
+        items: o.order_items,
+        subtotal: Number(o.subtotal),
+        igv: Number(o.igv),
+        total: Number(o.total),
+      },
+      format,
+    );
   };
 
   const setStatus = async (id: string, status: "pagado" | "entregado" | "anulado") => {
