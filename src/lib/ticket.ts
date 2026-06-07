@@ -23,7 +23,7 @@ export function setPreferredPrintFormat(f: TicketFormat) {
   window.localStorage.setItem(PRINT_FORMAT_KEY, f);
 }
 
-export function printOrderTicket(o: PdfOrder, format: TicketFormat = getPreferredPrintFormat()) {
+export function renderTicketHtml(o: PdfOrder, format: TicketFormat): string {
   const isFactura = o.doc_kind === "factura";
   const serie = isFactura ? "F001" : "B001";
   const numero = `${serie}-${String(o.number).padStart(8, "0")}`;
@@ -222,10 +222,20 @@ export function printOrderTicket(o: PdfOrder, format: TicketFormat = getPreferre
       setTimeout(function(){ window.close(); }, 500);
     };
   </script>
-</body>
+  </body>
 </html>`;
+  return html;
+}
 
-  const w = window.open("", "_blank", cfg.windowSize);
+export function printOrderTicket(o: PdfOrder, format: TicketFormat = getPreferredPrintFormat()) {
+  const html = renderTicketHtml(o, format);
+  const winSize =
+    format === "a4"
+      ? "width=900,height=1000"
+      : format === "58mm"
+        ? "width=300,height=640"
+        : "width=380,height=640";
+  const w = window.open("", "_blank", winSize);
   if (!w) {
     alert("Habilite las ventanas emergentes para imprimir.");
     return;

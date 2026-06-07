@@ -43,6 +43,16 @@ function POS() {
     if (typeof window === "undefined") return "80mm";
     return (window.localStorage.getItem("lclab.print.format.pos") as any) || "80mm";
   });
+  const [useQz, setUseQz] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("lclab.print.useqz") === "1";
+  });
+  const [qzPrinters, setQzPrinters] = useState<string[]>([]);
+  const [qzPrinter, setQzPrinter] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem("lclab.qz.printer") || "";
+  });
+  const [qzStatus, setQzStatus] = useState<"idle" | "connecting" | "ok" | "error">("idle");
   const [q, setQ] = useState("");
 
   const { data: products = [] } = useQuery({
@@ -154,12 +164,24 @@ function POS() {
         total,
       };
       const shouldPrint = printFormat !== "none";
-      const [{ generateOrderPdf }, ticketMod] = await Promise.all([
-        import("@/lib/pdf"),
-        shouldPrint ? import("@/lib/ticket") : Promise.resolve(null as any),
-      ]);
+      const { generateOrderPdf } = await import("@/lib/pdf");
       generateOrderPdf(pdfData);
-      if (shouldPrint && ticketMod) ticketMod.printOrderTicket(pdfData, printFormat);
+      if (shouldPrint) {
+        if (useQz) {
+          try {
+            const qz = await import("@/lib/qz");
+            await qz.printViaQz(pdfData, printFormat, qzPrinter || null);
+          } catch (err) {
+            toast.error(
+              "QZ Tray no disponible. Verifica que esté instalado y abierto. " +
+                (err instanceof Error ? err.message : ""),
+            );
+          }
+        } else {
+          const { printOrderTicket } = await import("@/lib/ticket");
+          printOrderTicket(pdfData, printFormat);
+        }
+      }
 
 
       toast.success(`${docKind === "factura" ? "Factura" : "Boleta"} N° ${order.number} generada`);
@@ -392,6 +414,94 @@ function POS() {
             <p className="text-[10px] text-muted-foreground mt-1">
               Se enviará a la impresora predeterminada de tu PC con ese tamaño de papel.
             </p>
+          </div>
+          <div className="rounded-md border border-border p-3 space-y-2">
+            <label className="flex items-center gap-2 text-xs font-medium">
+              <input
+                type="checkbox"
+                checked={useQz}
+                onChange={(e) => {
+                  setUseQz(e.target.checked);
+                  if (typeof window !== "undefined")
+                    window.localStorage.setItem(
+                      "lclab.print.useqz",
+                      e.target.checked ? "1" : "0",
+                    );
+                }}
+              />
+              Imprimir con QZ Tray (directo, sin diálogo)
+            </label>
+            {useQz && (
+              <>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs flex-1"
+                    onClick={async () => {
+                      setQzStatus("connecting");
+                      try {
+                        const qz = await import("@/lib/qz");
+                        const list = await qz.listPrinters();
+                        setQzPrinters(list);
+                        if (!qzPrinter && list.length) {
+                          const def = (await qz.getDefaultPrinter()) || list[0];
+                          setQzPrinter(def);
+                          qz.setSavedPrinter(def);
+                        }
+                        setQzStatus("ok");
+                        toast.success(`QZ conectado · ${list.length} impresoras`);
+                      } catch (err) {
+                        setQzStatus("error");
+                        toast.error(
+                          "No se pudo conectar con QZ Tray. ¿Está instalado y abierto?",
+                        );
+                      }
+                    }}
+                  >
+                    {qzStatus === "connecting"
+                      ? "Conectando..."
+                      : qzStatus === "ok"
+                        ? "Reconectar / actualizar"
+                        : "Conectar a QZ Tray"}
+                  </Button>
+                </div>
+                {qzPrinters.length > 0 && (
+                  <Select
+                    value={qzPrinter}
+                    onValueChange={(v) => {
+                      setQzPrinter(v);
+                      if (typeof window !== "undefined")
+                        window.localStorage.setItem("lclab.qz.printer", v);
+                    }}
+                  >
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Selecciona impresora" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {qzPrinters.map((p) => (
+                        <SelectItem key={p} value={p}>
+                          {p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <p className="text-[10px] text-muted-foreground">
+                  Requiere{" "}
+                  <a
+                    href="https://qz.io/download/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline text-gold"
+                  >
+                    QZ Tray
+                  </a>{" "}
+                  instalado en la PC. Imprime directo a la tiquetera sin diálogo.
+                </p>
+              </>
+            )}
           </div>
           <Button
             onClick={finalize}
