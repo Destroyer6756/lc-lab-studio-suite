@@ -164,12 +164,24 @@ function POS() {
         total,
       };
       const shouldPrint = printFormat !== "none";
-      const [{ generateOrderPdf }, ticketMod] = await Promise.all([
-        import("@/lib/pdf"),
-        shouldPrint ? import("@/lib/ticket") : Promise.resolve(null as any),
-      ]);
+      const { generateOrderPdf } = await import("@/lib/pdf");
       generateOrderPdf(pdfData);
-      if (shouldPrint && ticketMod) ticketMod.printOrderTicket(pdfData, printFormat);
+      if (shouldPrint) {
+        if (useQz) {
+          try {
+            const qz = await import("@/lib/qz");
+            await qz.printViaQz(pdfData, printFormat, qzPrinter || null);
+          } catch (err) {
+            toast.error(
+              "QZ Tray no disponible. Verifica que esté instalado y abierto. " +
+                (err instanceof Error ? err.message : ""),
+            );
+          }
+        } else {
+          const { printOrderTicket } = await import("@/lib/ticket");
+          printOrderTicket(pdfData, printFormat);
+        }
+      }
 
 
       toast.success(`${docKind === "factura" ? "Factura" : "Boleta"} N° ${order.number} generada`);
