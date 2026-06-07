@@ -223,9 +223,18 @@ export function renderTicketHtml(o: PdfOrder, format: TicketFormat): string {
     };
   </script>
 </body>
-</html>`;
+  return html;
+}
 
-  const w = window.open("", "_blank", cfg.windowSize);
+export function printOrderTicket(o: PdfOrder, format: TicketFormat = getPreferredPrintFormat()) {
+  const html = renderTicketHtml(o, format);
+  const winSize =
+    format === "a4"
+      ? "width=900,height=1000"
+      : format === "58mm"
+        ? "width=300,height=640"
+        : "width=380,height=640";
+  const w = window.open("", "_blank", winSize);
   if (!w) {
     alert("Habilite las ventanas emergentes para imprimir.");
     return;
