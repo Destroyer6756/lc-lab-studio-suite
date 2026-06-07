@@ -43,6 +43,16 @@ function POS() {
     if (typeof window === "undefined") return "80mm";
     return (window.localStorage.getItem("lclab.print.format.pos") as any) || "80mm";
   });
+  const [useQz, setUseQz] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("lclab.print.useqz") === "1";
+  });
+  const [qzPrinters, setQzPrinters] = useState<string[]>([]);
+  const [qzPrinter, setQzPrinter] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem("lclab.qz.printer") || "";
+  });
+  const [qzStatus, setQzStatus] = useState<"idle" | "connecting" | "ok" | "error">("idle");
   const [q, setQ] = useState("");
 
   const { data: products = [] } = useQuery({
