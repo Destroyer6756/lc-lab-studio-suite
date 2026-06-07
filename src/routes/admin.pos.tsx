@@ -153,12 +153,13 @@ function POS() {
         igv,
         total,
       };
+      const shouldPrint = printFormat !== "none";
       const [{ generateOrderPdf }, ticketMod] = await Promise.all([
         import("@/lib/pdf"),
-        printTicket ? import("@/lib/ticket") : Promise.resolve(null as any),
+        shouldPrint ? import("@/lib/ticket") : Promise.resolve(null as any),
       ]);
       generateOrderPdf(pdfData);
-      if (printTicket && ticketMod) ticketMod.printOrderTicket(pdfData);
+      if (shouldPrint && ticketMod) ticketMod.printOrderTicket(pdfData, printFormat);
 
 
       toast.success(`${docKind === "factura" ? "Factura" : "Boleta"} N° ${order.number} generada`);
