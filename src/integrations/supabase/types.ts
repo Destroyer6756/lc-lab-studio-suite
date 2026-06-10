@@ -329,6 +329,80 @@ export type Database = {
           },
         ]
       }
+      sunat_documents: {
+        Row: {
+          cdr_url: string | null
+          correlativo: number
+          created_at: string
+          doc_type: Database["public"]["Enums"]["sunat_doc_type"]
+          environment: string
+          hash: string | null
+          id: string
+          order_id: string | null
+          pdf_url: string | null
+          qr: string | null
+          request_payload: Json | null
+          response_payload: Json | null
+          serie: string
+          status: Database["public"]["Enums"]["sunat_status"]
+          sunat_code: string | null
+          sunat_description: string | null
+          ticket: string | null
+          updated_at: string
+          xml_url: string | null
+        }
+        Insert: {
+          cdr_url?: string | null
+          correlativo: number
+          created_at?: string
+          doc_type: Database["public"]["Enums"]["sunat_doc_type"]
+          environment?: string
+          hash?: string | null
+          id?: string
+          order_id?: string | null
+          pdf_url?: string | null
+          qr?: string | null
+          request_payload?: Json | null
+          response_payload?: Json | null
+          serie: string
+          status?: Database["public"]["Enums"]["sunat_status"]
+          sunat_code?: string | null
+          sunat_description?: string | null
+          ticket?: string | null
+          updated_at?: string
+          xml_url?: string | null
+        }
+        Update: {
+          cdr_url?: string | null
+          correlativo?: number
+          created_at?: string
+          doc_type?: Database["public"]["Enums"]["sunat_doc_type"]
+          environment?: string
+          hash?: string | null
+          id?: string
+          order_id?: string | null
+          pdf_url?: string | null
+          qr?: string | null
+          request_payload?: Json | null
+          response_payload?: Json | null
+          serie?: string
+          status?: Database["public"]["Enums"]["sunat_status"]
+          sunat_code?: string | null
+          sunat_description?: string | null
+          ticket?: string | null
+          updated_at?: string
+          xml_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sunat_documents_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -375,6 +449,18 @@ export type Database = {
         | "confirmada"
         | "completada"
         | "cancelada"
+      sunat_doc_type:
+        | "boleta"
+        | "factura"
+        | "nota_credito"
+        | "nota_debito"
+        | "resumen_diario"
+      sunat_status:
+        | "pendiente"
+        | "enviado"
+        | "aceptado"
+        | "rechazado"
+        | "anulado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -512,6 +598,20 @@ export const Constants = {
         "confirmada",
         "completada",
         "cancelada",
+      ],
+      sunat_doc_type: [
+        "boleta",
+        "factura",
+        "nota_credito",
+        "nota_debito",
+        "resumen_diario",
+      ],
+      sunat_status: [
+        "pendiente",
+        "enviado",
+        "aceptado",
+        "rechazado",
+        "anulado",
       ],
     },
   },
