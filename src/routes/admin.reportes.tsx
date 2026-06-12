@@ -43,13 +43,25 @@ function Reports() {
         .reverse()
         .map(([m, total]) => ({ month: m, total: Number(total.toFixed(2)) }));
 
-      const byPay: Record<string, number> = {};
+      const payLabels: Record<string, string> = {
+        efectivo: "Efectivo",
+        yape: "Yape",
+        plin: "Plin",
+        tarjeta: "Tarjeta",
+        credito: "Crédito",
+      };
+      const byPay: Record<string, { count: number; total: number }> = {};
       valid.forEach((o) => {
-        byPay[o.payment_method] = (byPay[o.payment_method] ?? 0) + Number(o.total);
+        const k = o.payment_method;
+        if (!byPay[k]) byPay[k] = { count: 0, total: 0 };
+        byPay[k].count += 1;
+        byPay[k].total += Number(o.total);
       });
-      const pay = Object.entries(byPay).map(([name, value]) => ({
+      const pay = Object.entries(byPay).map(([name, v]) => ({
         name,
-        value: Number(value.toFixed(2)),
+        label: payLabels[name] ?? name,
+        count: v.count,
+        value: Number(v.total.toFixed(2)),
       }));
 
       const byDoc: Record<string, { count: number; total: number }> = {};
@@ -64,6 +76,7 @@ function Reports() {
         value: v.count,
         total: Number(v.total.toFixed(2)),
       }));
+
 
 
       const totalRev = valid.reduce((s, o) => s + Number(o.total), 0);
@@ -99,7 +112,11 @@ function Reports() {
       },
       {
         name: "Por método de pago",
-        rows: data.pay.map((p) => ({ Método: p.name, Total: p.value })),
+        rows: data.pay.map((p) => ({
+          Método: p.label,
+          Cantidad: p.count,
+          Total: p.value,
+        })),
       },
       {
         name: "Pedidos",
@@ -243,38 +260,41 @@ function Reports() {
         </Card>
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="font-display">Boletas vs Facturas</CardTitle>
+            <CardTitle className="font-display">Métodos de pago</CardTitle>
           </CardHeader>
           <CardContent>
             {(() => {
-              const boleta = data?.docs.find((d) => d.name === "boleta") ?? { value: 0, total: 0 };
-              const factura = data?.docs.find((d) => d.name === "factura") ?? { value: 0, total: 0 };
-              const totalCount = boleta.value + factura.value;
-              const totalAmount = boleta.total + factura.total;
-              const rows = [
-                { label: "Boletas", count: boleta.value, total: boleta.total },
-                { label: "Facturas", count: factura.value, total: factura.total },
-              ];
+              const rows = data?.pay ?? [];
+              const totalCount = rows.reduce((s, r) => s + r.count, 0);
+              const totalAmount = rows.reduce((s, r) => s + r.value, 0);
               return (
                 <div className="overflow-hidden rounded-lg border border-border">
                   <table className="w-full text-sm">
                     <thead className="bg-muted/40">
                       <tr className="text-left">
-                        <th className="px-4 py-3 font-medium text-muted-foreground">Comprobante</th>
+                        <th className="px-4 py-3 font-medium text-muted-foreground">Método</th>
                         <th className="px-4 py-3 font-medium text-muted-foreground text-center">Cantidad</th>
                         <th className="px-4 py-3 font-medium text-muted-foreground text-right">Monto total</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {rows.map((r) => (
-                        <tr key={r.label} className="border-t border-border">
-                          <td className="px-4 py-3 font-medium">{r.label}</td>
-                          <td className="px-4 py-3 text-center font-display text-lg">{r.count}</td>
-                          <td className="px-4 py-3 text-right font-display text-lg text-gold">
-                            S/ {r.total.toFixed(2)}
+                      {rows.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="px-4 py-6 text-center text-muted-foreground">
+                            Sin ventas registradas
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        rows.map((r) => (
+                          <tr key={r.name} className="border-t border-border">
+                            <td className="px-4 py-3 font-medium capitalize">{r.label}</td>
+                            <td className="px-4 py-3 text-center font-display text-lg">{r.count}</td>
+                            <td className="px-4 py-3 text-right font-display text-lg text-gold">
+                              S/ {r.value.toFixed(2)}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                       <tr className="border-t border-border bg-muted/30">
                         <td className="px-4 py-3 font-bold uppercase tracking-wider text-xs">Total</td>
                         <td className="px-4 py-3 text-center font-display text-xl font-bold">{totalCount}</td>
@@ -289,6 +309,7 @@ function Reports() {
             })()}
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
