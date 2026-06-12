@@ -175,6 +175,7 @@ function POS() {
   const igv = total - subtotal;
 
   const finalize = async () => {
+    if (!cashSession) return toast.error("Apertura la caja antes de vender");
     if (items.length === 0) return toast.error("Carrito vacío");
     if (!customerId) return toast.error("Selecciona un cliente");
 
@@ -201,11 +202,13 @@ function POS() {
           subtotal,
           igv,
           total,
+          cash_session_id: cashSession.id,
         })
         .select("*")
         .single();
       if (error) throw error;
       createdOrderId = order.id;
+
 
       const itemsPayload = items.map((i) => ({
         order_id: order.id,
