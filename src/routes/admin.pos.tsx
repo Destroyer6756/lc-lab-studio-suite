@@ -37,8 +37,10 @@ function POS() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [customerId, setCustomerId] = useState("");
-  const [docKind, setDocKind] = useState<"boleta" | "factura">("boleta");
-  const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta">("efectivo");
+  const [docKind, setDocKind] = useState<"boleta" | "factura" | "ticket">("boleta");
+  const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta" | "credito">(
+    "efectivo",
+  );
   const [busy, setBusy] = useState(false);
   const [printFormat, setPrintFormat] = useState<"none" | "a4" | "80mm" | "58mm">(() => {
     if (typeof window === "undefined") return "80mm";
