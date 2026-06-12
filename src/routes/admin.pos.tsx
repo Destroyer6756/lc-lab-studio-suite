@@ -742,6 +742,76 @@ function POS() {
           </Button>
         </CardContent>
       </Card>
+      <Dialog open={closeCashDlg} onOpenChange={setCloseCashDlg}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cerrar caja</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div className="rounded-md border border-border p-3 space-y-1">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Apertura</span>
+                <span>S/ {Number(cashSession.opening_amount).toFixed(2)}</span>
+              </div>
+              {Object.entries(cashStats?.byMethod ?? {}).map(([m, v]) => (
+                <div key={m} className="flex justify-between text-muted-foreground capitalize">
+                  <span>Ventas {m}</span>
+                  <span>S/ {v.toFixed(2)}</span>
+                </div>
+              ))}
+              <Separator className="my-1" />
+              <div className="flex justify-between font-medium">
+                <span>Efectivo esperado en caja</span>
+                <span className="text-gold">S/ {cashStats?.expected.toFixed(2) ?? "0.00"}</span>
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs">Efectivo contado en caja (S/)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={closingAmount}
+                onChange={(e) => setClosingAmount(e.target.value)}
+                placeholder="0.00"
+              />
+              {closingAmount !== "" && cashStats && (
+                <p className="text-xs mt-1">
+                  Diferencia:{" "}
+                  <span
+                    className={
+                      Number(closingAmount) - cashStats.expected === 0
+                        ? "text-muted-foreground"
+                        : Number(closingAmount) - cashStats.expected > 0
+                          ? "text-green-500"
+                          : "text-destructive"
+                    }
+                  >
+                    S/ {(Number(closingAmount) - cashStats.expected).toFixed(2)}
+                  </span>
+                </p>
+              )}
+            </div>
+            <div>
+              <Label className="text-xs">Notas (opcional)</Label>
+              <Textarea
+                value={cashNotes}
+                onChange={(e) => setCashNotes(e.target.value)}
+                rows={2}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCloseCashDlg(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={cashCloseSale} className="bg-gradient-gold text-primary-foreground">
+              Cerrar caja
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 }
