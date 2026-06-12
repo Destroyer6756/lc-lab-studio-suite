@@ -355,6 +355,7 @@ function POS() {
                   { v: "yape", l: "Yape", I: Smartphone },
                   { v: "plin", l: "Plin", I: Smartphone },
                   { v: "tarjeta", l: "Tarjeta", I: CreditCard },
+                  { v: "credito", l: "Crédito", I: Wallet },
                 ] as const
               ).map((m) => (
                 <button
