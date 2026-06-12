@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 
 export interface PdfOrder {
   number: number;
-  doc_kind: "boleta" | "factura";
+  doc_kind: "boleta" | "factura" | "ticket";
   payment_method: string;
   created_at: string;
   customer?: {
