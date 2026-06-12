@@ -301,8 +301,97 @@ function POS() {
     }
   };
 
+  const cashStats = (() => {
+    if (!cashSession) return null;
+    const valid = cashOrders.filter((o) => o.status !== "anulado");
+    const byMethod: Record<string, number> = {};
+    valid.forEach((o) => {
+      byMethod[o.payment_method] = (byMethod[o.payment_method] ?? 0) + Number(o.total);
+    });
+    const totalSales = valid.reduce((s, o) => s + Number(o.total), 0);
+    const cashOnly = byMethod["efectivo"] ?? 0;
+    const expected = Number(cashSession.opening_amount) + cashOnly;
+    return { byMethod, totalSales, expected, cashOnly, count: valid.length };
+  })();
+
+  if (cashLoading) {
+    return (
+      <div className="grid place-items-center py-20">
+        <Loader2 className="size-8 animate-spin text-gold" />
+      </div>
+    );
+  }
+
+  if (!cashSession) {
+    return (
+      <>
+        <div className="grid place-items-center py-20">
+          <Card className="border-gold/40 bg-card max-w-md w-full">
+            <CardHeader>
+              <CardTitle className="font-display flex items-center gap-2">
+                <Lock className="size-5 text-gold" /> Caja cerrada
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Antes de empezar a vender debes aperturar la caja registrando el monto inicial en
+                efectivo.
+              </p>
+              <Button
+                onClick={() => setOpenCashDlg(true)}
+                className="w-full bg-gradient-gold text-primary-foreground shadow-gold hover:opacity-90 h-11"
+              >
+                <LockOpen className="size-4 mr-2" /> Aperturar caja
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        <Dialog open={openCashDlg} onOpenChange={setOpenCashDlg}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Aperturar caja</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-xs">Monto inicial en efectivo (S/)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={openingAmount}
+                  onChange={(e) => setOpeningAmount(e.target.value)}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Notas (opcional)</Label>
+                <Textarea
+                  value={cashNotes}
+                  onChange={(e) => setCashNotes(e.target.value)}
+                  rows={2}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpenCashDlg(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={cashOpenSale}
+                className="bg-gradient-gold text-primary-foreground"
+              >
+                Aperturar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
   return (
     <div className="grid lg:grid-cols-[1fr_400px] gap-6">
+
       <div className="space-y-4">
         <div>
           <h1 className="font-display text-3xl font-bold">Nueva venta</h1>
