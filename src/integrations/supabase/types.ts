@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      cash_sessions: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          closing_amount: number | null
+          created_at: string
+          expected_amount: number | null
+          id: string
+          notes: string | null
+          opened_at: string
+          opened_by: string | null
+          opening_amount: number
+          status: Database["public"]["Enums"]["cash_session_status"]
+          updated_at: string
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          closing_amount?: number | null
+          created_at?: string
+          expected_amount?: number | null
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          opened_by?: string | null
+          opening_amount?: number
+          status?: Database["public"]["Enums"]["cash_session_status"]
+          updated_at?: string
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          closing_amount?: number | null
+          created_at?: string
+          expected_amount?: number | null
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          opened_by?: string | null
+          opening_amount?: number
+          status?: Database["public"]["Enums"]["cash_session_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -115,6 +160,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          cash_session_id: string | null
           created_at: string
           customer_id: string | null
           doc_kind: Database["public"]["Enums"]["doc_kind"]
@@ -129,6 +175,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cash_session_id?: string | null
           created_at?: string
           customer_id?: string | null
           doc_kind?: Database["public"]["Enums"]["doc_kind"]
@@ -143,6 +190,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cash_session_id?: string | null
           created_at?: string
           customer_id?: string | null
           doc_kind?: Database["public"]["Enums"]["doc_kind"]
@@ -157,6 +205,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_cash_session_id_fkey"
+            columns: ["cash_session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_customer_id_fkey"
             columns: ["customer_id"]
@@ -440,6 +495,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "staff" | "cliente"
+      cash_session_status: "abierta" | "cerrada"
       doc_kind: "boleta" | "factura" | "ticket"
       order_status: "pendiente" | "pagado" | "entregado" | "anulado"
       payment_method: "efectivo" | "yape" | "plin" | "tarjeta" | "credito"
@@ -589,6 +645,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "staff", "cliente"],
+      cash_session_status: ["abierta", "cerrada"],
       doc_kind: ["boleta", "factura", "ticket"],
       order_status: ["pendiente", "pagado", "entregado", "anulado"],
       payment_method: ["efectivo", "yape", "plin", "tarjeta", "credito"],
