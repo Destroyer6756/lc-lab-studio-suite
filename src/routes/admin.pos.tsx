@@ -288,6 +288,7 @@ function POS() {
       qc.invalidateQueries({ queryKey: ["payment-transactions"] });
       qc.invalidateQueries({ queryKey: ["products-active"] });
       qc.invalidateQueries({ queryKey: ["products"] });
+      qc.invalidateQueries({ queryKey: ["cash-session-orders"] });
       toast.success(autoConfirm ? "Pago confirmado" : "Pago pendiente de confirmación");
     } catch (e) {
       // Rollback: si se creó la orden pero falló algo después, márcala anulada
