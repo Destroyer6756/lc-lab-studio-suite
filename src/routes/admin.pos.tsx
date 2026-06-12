@@ -385,7 +385,14 @@ function POS() {
                   S/ {total.toFixed(2)}
                 </p>
                 <p className="text-[11px] text-muted-foreground">Número: 987 654 321</p>
+            {payment === "credito" && (
+              <div className="mt-3 rounded-md border border-gold/30 bg-gold/5 p-3 text-xs text-muted-foreground">
+                Venta a <span className="text-gold font-medium">crédito</span>. El pedido quedará{" "}
+                <span className="font-medium">pendiente</span> hasta que se registre el cobro en
+                Pedidos / Transacciones.
               </div>
+            )}
+          </div>
             )}
           </div>
           <Separator />
