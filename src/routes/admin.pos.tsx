@@ -23,6 +23,7 @@ import {
   ShoppingCart,
   Plus,
   Minus,
+  Wallet,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
