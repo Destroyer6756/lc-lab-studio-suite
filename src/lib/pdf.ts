@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 
 export interface PdfOrder {
   number: number;
-  doc_kind: "boleta" | "factura";
+  doc_kind: "boleta" | "factura" | "ticket";
   payment_method: string;
   created_at: string;
   customer?: {
@@ -34,8 +34,13 @@ export function generateOrderPdf(o: PdfOrder) {
   const line: [number, number, number] = [210, 210, 210];
 
   const isFactura = o.doc_kind === "factura";
-  const docTitle = isFactura ? "FACTURA ELECTRÓNICA" : "BOLETA DE VENTA ELECTRÓNICA";
-  const serie = isFactura ? "F001" : "B001";
+  const isTicket = o.doc_kind === "ticket";
+  const docTitle = isTicket
+    ? "TICKET DE VENTA INTERNO"
+    : isFactura
+      ? "FACTURA ELECTRÓNICA"
+      : "BOLETA DE VENTA ELECTRÓNICA";
+  const serie = isTicket ? "T001" : isFactura ? "F001" : "B001";
   const numero = `${serie}-${String(o.number).padStart(8, "0")}`;
   const fecha = new Date(o.created_at);
   const fechaEmision = fecha.toLocaleDateString("es-PE");
@@ -46,7 +51,7 @@ export function generateOrderPdf(o: PdfOrder) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(28);
   doc.setCharSpace(2);
-  doc.text(isFactura ? "FACTURA" : "BOLETA", 15, 22);
+  doc.text(isTicket ? "TICKET" : isFactura ? "FACTURA" : "BOLETA", 15, 22);
   doc.setCharSpace(0);
 
   // Emisor a la derecha

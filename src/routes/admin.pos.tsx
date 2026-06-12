@@ -23,6 +23,7 @@ import {
   ShoppingCart,
   Plus,
   Minus,
+  Wallet,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
@@ -36,8 +37,10 @@ function POS() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [customerId, setCustomerId] = useState("");
-  const [docKind, setDocKind] = useState<"boleta" | "factura">("boleta");
-  const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta">("efectivo");
+  const [docKind, setDocKind] = useState<"boleta" | "factura" | "ticket">("boleta");
+  const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta" | "credito">(
+    "efectivo",
+  );
   const [busy, setBusy] = useState(false);
   const [printFormat, setPrintFormat] = useState<"none" | "a4" | "80mm" | "58mm">(() => {
     if (typeof window === "undefined") return "80mm";
@@ -184,7 +187,8 @@ function POS() {
       }
 
 
-      toast.success(`${docKind === "factura" ? "Factura" : "Boleta"} N° ${order.number} generada`);
+      const docLabel = docKind === "factura" ? "Factura" : docKind === "ticket" ? "Ticket" : "Boleta";
+      toast.success(`${docLabel} N° ${order.number} generado`);
       clear();
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
@@ -321,8 +325,8 @@ function POS() {
             <Label className="text-xs">Comprobante</Label>
             <RadioGroup
               value={docKind}
-              onValueChange={(v) => setDocKind(v as "boleta" | "factura")}
-              className="flex gap-4 mt-1"
+              onValueChange={(v) => setDocKind(v as "boleta" | "factura" | "ticket")}
+              className="flex flex-wrap gap-4 mt-1"
             >
               <label className="flex items-center gap-2 text-sm">
                 <RadioGroupItem value="boleta" />
@@ -332,7 +336,16 @@ function POS() {
                 <RadioGroupItem value="factura" />
                 Factura
               </label>
+              <label className="flex items-center gap-2 text-sm">
+                <RadioGroupItem value="ticket" />
+                Ticket <span className="text-[10px] text-muted-foreground">(interno)</span>
+              </label>
             </RadioGroup>
+            {docKind === "ticket" && (
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Venta interna sin valor tributario — no se declara a SUNAT.
+              </p>
+            )}
           </div>
           <div>
             <Label className="text-xs mb-1.5 block">Método de pago</Label>
@@ -343,6 +356,7 @@ function POS() {
                   { v: "yape", l: "Yape", I: Smartphone },
                   { v: "plin", l: "Plin", I: Smartphone },
                   { v: "tarjeta", l: "Tarjeta", I: CreditCard },
+                  { v: "credito", l: "Crédito", I: Wallet },
                 ] as const
               ).map((m) => (
                 <button
@@ -372,6 +386,13 @@ function POS() {
                   S/ {total.toFixed(2)}
                 </p>
                 <p className="text-[11px] text-muted-foreground">Número: 987 654 321</p>
+              </div>
+            )}
+            {payment === "credito" && (
+              <div className="mt-3 rounded-md border border-gold/30 bg-gold/5 p-3 text-xs text-muted-foreground">
+                Venta a <span className="text-gold font-medium">crédito</span>. El pedido quedará{" "}
+                <span className="font-medium">pendiente</span> hasta que se registre el cobro en
+                Pedidos / Transacciones.
               </div>
             )}
           </div>

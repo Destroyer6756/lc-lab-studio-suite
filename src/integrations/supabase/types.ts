@@ -440,9 +440,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "staff" | "cliente"
-      doc_kind: "boleta" | "factura"
+      doc_kind: "boleta" | "factura" | "ticket"
       order_status: "pendiente" | "pagado" | "entregado" | "anulado"
-      payment_method: "efectivo" | "yape" | "plin" | "tarjeta"
+      payment_method: "efectivo" | "yape" | "plin" | "tarjeta" | "credito"
       payment_status: "pendiente" | "confirmado" | "rechazado" | "reembolsado"
       reservation_status:
         | "pendiente"
@@ -589,9 +589,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "staff", "cliente"],
-      doc_kind: ["boleta", "factura"],
+      doc_kind: ["boleta", "factura", "ticket"],
       order_status: ["pendiente", "pagado", "entregado", "anulado"],
-      payment_method: ["efectivo", "yape", "plin", "tarjeta"],
+      payment_method: ["efectivo", "yape", "plin", "tarjeta", "credito"],
       payment_status: ["pendiente", "confirmado", "rechazado", "reembolsado"],
       reservation_status: [
         "pendiente",
