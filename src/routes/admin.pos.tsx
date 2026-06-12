@@ -324,8 +324,8 @@ function POS() {
             <Label className="text-xs">Comprobante</Label>
             <RadioGroup
               value={docKind}
-              onValueChange={(v) => setDocKind(v as "boleta" | "factura")}
-              className="flex gap-4 mt-1"
+              onValueChange={(v) => setDocKind(v as "boleta" | "factura" | "ticket")}
+              className="flex flex-wrap gap-4 mt-1"
             >
               <label className="flex items-center gap-2 text-sm">
                 <RadioGroupItem value="boleta" />
@@ -335,7 +335,16 @@ function POS() {
                 <RadioGroupItem value="factura" />
                 Factura
               </label>
+              <label className="flex items-center gap-2 text-sm">
+                <RadioGroupItem value="ticket" />
+                Ticket <span className="text-[10px] text-muted-foreground">(interno)</span>
+              </label>
             </RadioGroup>
+            {docKind === "ticket" && (
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Venta interna sin valor tributario — no se declara a SUNAT.
+              </p>
+            )}
           </div>
           <div>
             <Label className="text-xs mb-1.5 block">Método de pago</Label>
