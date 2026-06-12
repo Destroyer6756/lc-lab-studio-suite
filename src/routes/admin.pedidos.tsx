@@ -75,7 +75,7 @@ function OrdersPage() {
     const { generateOrderPdf } = await import("@/lib/pdf");
     generateOrderPdf({
       number: o.number,
-      doc_kind: o.doc_kind as "boleta" | "factura",
+      doc_kind: o.doc_kind as "boleta" | "factura" | "ticket",
       payment_method: o.payment_method,
       created_at: o.created_at,
       customer: o.customer,
