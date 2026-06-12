@@ -67,6 +67,86 @@ function POS() {
   });
   const [qzStatus, setQzStatus] = useState<"idle" | "connecting" | "ok" | "error">("idle");
   const [q, setQ] = useState("");
+  const [openCashDlg, setOpenCashDlg] = useState(false);
+  const [closeCashDlg, setCloseCashDlg] = useState(false);
+  const [openingAmount, setOpeningAmount] = useState("");
+  const [closingAmount, setClosingAmount] = useState("");
+  const [cashNotes, setCashNotes] = useState("");
+
+  const { data: cashSession, isLoading: cashLoading } = useQuery({
+    queryKey: ["cash-session-open"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("cash_sessions")
+        .select("*")
+        .eq("status", "abierta")
+        .order("opened_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: cashOrders = [] } = useQuery({
+    queryKey: ["cash-session-orders", cashSession?.id],
+    enabled: !!cashSession?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("orders")
+        .select("total, payment_method, status")
+        .eq("cash_session_id", cashSession!.id);
+      return data ?? [];
+    },
+  });
+
+  const cashOpenSale = async () => {
+    const amt = Number(openingAmount || 0);
+    if (Number.isNaN(amt) || amt < 0) return toast.error("Monto inválido");
+    const { error } = await supabase.from("cash_sessions").insert({
+      opened_by: user?.id,
+      opening_amount: amt,
+      notes: cashNotes || null,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Caja aperturada");
+    setOpenCashDlg(false);
+    setOpeningAmount("");
+    setCashNotes("");
+    qc.invalidateQueries({ queryKey: ["cash-session-open"] });
+  };
+
+  const cashCloseSale = async () => {
+    if (!cashSession) return;
+    const declared = Number(closingAmount || 0);
+    if (Number.isNaN(declared) || declared < 0) return toast.error("Monto inválido");
+    const expected =
+      Number(cashSession.opening_amount) +
+      cashOrders
+        .filter((o) => o.status !== "anulado" && o.payment_method === "efectivo")
+        .reduce((s, o) => s + Number(o.total), 0);
+    const { error } = await supabase
+      .from("cash_sessions")
+      .update({
+        status: "cerrada",
+        closed_at: new Date().toISOString(),
+        closed_by: user?.id,
+        closing_amount: declared,
+        expected_amount: expected,
+        notes: cashNotes || cashSession.notes,
+      })
+      .eq("id", cashSession.id);
+    if (error) return toast.error(error.message);
+    const diff = declared - expected;
+    toast.success(
+      `Caja cerrada · Esperado S/ ${expected.toFixed(2)} · Declarado S/ ${declared.toFixed(2)} · Dif S/ ${diff.toFixed(2)}`,
+    );
+    setCloseCashDlg(false);
+    setClosingAmount("");
+    setCashNotes("");
+    qc.invalidateQueries({ queryKey: ["cash-session-open"] });
+    qc.invalidateQueries({ queryKey: ["cash-session-orders"] });
+  };
+
 
   const { data: products = [] } = useQuery({
     queryKey: ["products-active"],
