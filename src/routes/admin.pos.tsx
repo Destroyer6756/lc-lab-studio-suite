@@ -187,7 +187,8 @@ function POS() {
       }
 
 
-      toast.success(`${docKind === "factura" ? "Factura" : "Boleta"} N° ${order.number} generada`);
+      const docLabel = docKind === "factura" ? "Factura" : docKind === "ticket" ? "Ticket" : "Boleta";
+      toast.success(`${docLabel} N° ${order.number} generado`);
       clear();
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
