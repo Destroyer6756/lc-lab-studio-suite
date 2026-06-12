@@ -393,10 +393,36 @@ function POS() {
     <div className="grid lg:grid-cols-[1fr_400px] gap-6">
 
       <div className="space-y-4">
-        <div>
-          <h1 className="font-display text-3xl font-bold">Nueva venta</h1>
-          <p className="text-muted-foreground">Agrega productos al carrito</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="font-display text-3xl font-bold">Nueva venta</h1>
+            <p className="text-muted-foreground">Agrega productos al carrito</p>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border border-gold/30 bg-gold/5 px-3 py-2">
+            <LockOpen className="size-4 text-gold" />
+            <div className="text-xs leading-tight">
+              <div className="font-medium text-gold">Caja abierta</div>
+              <div className="text-muted-foreground">
+                Apertura S/ {Number(cashSession.opening_amount).toFixed(2)} ·{" "}
+                {cashStats?.count ?? 0} ventas · Esperado S/{" "}
+                {cashStats?.expected.toFixed(2) ?? "0.00"}
+              </div>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-gold/40 text-gold hover:bg-gold/10 hover:text-gold h-8"
+              onClick={() => {
+                setClosingAmount("");
+                setCashNotes("");
+                setCloseCashDlg(true);
+              }}
+            >
+              <Lock className="size-3.5 mr-1.5" /> Cerrar caja
+            </Button>
+          </div>
         </div>
+
         <Input placeholder="Buscar producto..." value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {filtered.map((p) => {
