@@ -53,7 +53,6 @@ function Reports() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["reports"],
-    queryKey: ["reports"],
     queryFn: async () => {
       const { data: orders } = await supabase
         .from("orders")
