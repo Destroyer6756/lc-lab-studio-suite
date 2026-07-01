@@ -39,13 +39,18 @@ function Reports() {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetConfirm, setResetConfirm] = useState("");
   const [resetting, setResetting] = useState(false);
+  const [resetDay, setResetDay] = useState<string>(() => new Date().toISOString().slice(0, 10));
 
   const resetHistory = async () => {
+    if (!resetDay) return toast.error("Selecciona una fecha");
     setResetting(true);
-    const { error } = await supabase.rpc("reset_history" as never);
+    const { error } = await supabase.rpc("reset_history" as never, { _day: resetDay } as never);
     setResetting(false);
     if (error) return toast.error(error.message);
-    toast.success("Historial borrado. Sistema reiniciado.");
+    const label = new Date(resetDay + "T00:00:00").toLocaleDateString("es-PE", {
+      day: "2-digit", month: "long", year: "numeric",
+    });
+    toast.success(`Historial del ${label} borrado.`);
     setResetOpen(false);
     setResetConfirm("");
     qc.invalidateQueries();
