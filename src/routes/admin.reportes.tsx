@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,45 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { Loader2, FileSpreadsheet, FileText } from "lucide-react";
+import { Loader2, FileSpreadsheet, FileText, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/admin/reportes")({ component: Reports });
 
 
 
 function Reports() {
+  const qc = useQueryClient();
+  const { isAdmin } = useAuth();
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetConfirm, setResetConfirm] = useState("");
+  const [resetting, setResetting] = useState(false);
+
+  const resetHistory = async () => {
+    setResetting(true);
+    const { error } = await supabase.rpc("reset_history" as never);
+    setResetting(false);
+    if (error) return toast.error(error.message);
+    toast.success("Historial borrado. Sistema reiniciado.");
+    setResetOpen(false);
+    setResetConfirm("");
+    qc.invalidateQueries();
+  };
+
   const { data, isLoading } = useQuery({
     queryKey: ["reports"],
     queryFn: async () => {
@@ -193,8 +225,62 @@ function Reports() {
           >
             <FileText className="size-4 mr-2" /> PDF
           </Button>
+          {isAdmin && (
+            <Button
+              variant="outline"
+              onClick={() => setResetOpen(true)}
+              className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 className="size-4 mr-2" /> Borrar historial
+            </Button>
+          )}
         </div>
       </div>
+
+      <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">
+              Borrar historial completo
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente todos los pedidos, pagos, comprobantes,
+              reservas y sesiones de caja. Los productos y clientes se conservan.
+              <br />
+              <br />
+              Escribe <strong>BORRAR</strong> para confirmar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div>
+            <Label className="text-xs">Confirmación</Label>
+            <Input
+              value={resetConfirm}
+              onChange={(e) => setResetConfirm(e.target.value)}
+              placeholder="BORRAR"
+              autoFocus
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resetting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={resetting || resetConfirm !== "BORRAR"}
+              onClick={(e) => {
+                e.preventDefault();
+                resetHistory();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {resetting ? (
+                <>
+                  <Loader2 className="size-4 mr-2 animate-spin" /> Borrando...
+                </>
+              ) : (
+                "Borrar todo"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-card border-border">

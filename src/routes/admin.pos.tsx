@@ -493,7 +493,17 @@ function POS() {
                   >
                     <Minus className="size-3" />
                   </Button>
-                  <span className="w-6 text-center">{i.quantity}</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={i.quantity}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value, 10);
+                      if (!Number.isNaN(v) && v > 0) setQty(i.product_id, v);
+                    }}
+                    onFocus={(e) => e.target.select()}
+                    className="w-16 h-7 text-center px-1"
+                  />
                   <Button
                     size="icon"
                     variant="ghost"
