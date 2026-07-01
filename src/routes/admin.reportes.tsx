@@ -225,8 +225,62 @@ function Reports() {
           >
             <FileText className="size-4 mr-2" /> PDF
           </Button>
+          {isAdmin && (
+            <Button
+              variant="outline"
+              onClick={() => setResetOpen(true)}
+              className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 className="size-4 mr-2" /> Borrar historial
+            </Button>
+          )}
         </div>
       </div>
+
+      <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">
+              Borrar historial completo
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente todos los pedidos, pagos, comprobantes,
+              reservas y sesiones de caja. Los productos y clientes se conservan.
+              <br />
+              <br />
+              Escribe <strong>BORRAR</strong> para confirmar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div>
+            <Label className="text-xs">Confirmación</Label>
+            <Input
+              value={resetConfirm}
+              onChange={(e) => setResetConfirm(e.target.value)}
+              placeholder="BORRAR"
+              autoFocus
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resetting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={resetting || resetConfirm !== "BORRAR"}
+              onClick={(e) => {
+                e.preventDefault();
+                resetHistory();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {resetting ? (
+                <>
+                  <Loader2 className="size-4 mr-2 animate-spin" /> Borrando...
+                </>
+              ) : (
+                "Borrar todo"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-card border-border">
