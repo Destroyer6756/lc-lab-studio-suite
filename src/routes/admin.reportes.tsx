@@ -246,24 +246,35 @@ function Reports() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive">
-              Borrar historial completo
+              Borrar historial de un día
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará permanentemente todos los pedidos, pagos, comprobantes,
-              reservas y sesiones de caja. Los productos y clientes se conservan.
+              Selecciona la fecha a borrar. Se eliminarán los pedidos, pagos, comprobantes,
+              reservas y sesiones de caja <strong>solo de ese día</strong>. Los productos y
+              clientes se conservan.
               <br />
               <br />
               Escribe <strong>BORRAR</strong> para confirmar.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div>
-            <Label className="text-xs">Confirmación</Label>
-            <Input
-              value={resetConfirm}
-              onChange={(e) => setResetConfirm(e.target.value)}
-              placeholder="BORRAR"
-              autoFocus
-            />
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Fecha a borrar</Label>
+              <Input
+                type="date"
+                value={resetDay}
+                onChange={(e) => setResetDay(e.target.value)}
+                max={new Date().toISOString().slice(0, 10)}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Confirmación</Label>
+              <Input
+                value={resetConfirm}
+                onChange={(e) => setResetConfirm(e.target.value)}
+                placeholder="BORRAR"
+              />
+            </div>
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={resetting}>Cancelar</AlertDialogCancel>
