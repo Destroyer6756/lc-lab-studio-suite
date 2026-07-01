@@ -34,7 +34,25 @@ export const Route = createFileRoute("/admin/reportes")({ component: Reports });
 
 
 function Reports() {
+  const qc = useQueryClient();
+  const { isAdmin } = useAuth();
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetConfirm, setResetConfirm] = useState("");
+  const [resetting, setResetting] = useState(false);
+
+  const resetHistory = async () => {
+    setResetting(true);
+    const { error } = await supabase.rpc("reset_history" as never);
+    setResetting(false);
+    if (error) return toast.error(error.message);
+    toast.success("Historial borrado. Sistema reiniciado.");
+    setResetOpen(false);
+    setResetConfirm("");
+    qc.invalidateQueries();
+  };
+
   const { data, isLoading } = useQuery({
+    queryKey: ["reports"],
     queryKey: ["reports"],
     queryFn: async () => {
       const { data: orders } = await supabase
