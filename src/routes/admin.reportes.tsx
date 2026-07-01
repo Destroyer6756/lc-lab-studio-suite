@@ -39,13 +39,18 @@ function Reports() {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetConfirm, setResetConfirm] = useState("");
   const [resetting, setResetting] = useState(false);
+  const [resetDay, setResetDay] = useState<string>(() => new Date().toISOString().slice(0, 10));
 
   const resetHistory = async () => {
+    if (!resetDay) return toast.error("Selecciona una fecha");
     setResetting(true);
-    const { error } = await supabase.rpc("reset_history" as never);
+    const { error } = await supabase.rpc("reset_history" as never, { _day: resetDay } as never);
     setResetting(false);
     if (error) return toast.error(error.message);
-    toast.success("Historial borrado. Sistema reiniciado.");
+    const label = new Date(resetDay + "T00:00:00").toLocaleDateString("es-PE", {
+      day: "2-digit", month: "long", year: "numeric",
+    });
+    toast.success(`Historial del ${label} borrado.`);
     setResetOpen(false);
     setResetConfirm("");
     qc.invalidateQueries();
@@ -241,24 +246,35 @@ function Reports() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive">
-              Borrar historial completo
+              Borrar historial de un día
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará permanentemente todos los pedidos, pagos, comprobantes,
-              reservas y sesiones de caja. Los productos y clientes se conservan.
+              Selecciona la fecha a borrar. Se eliminarán los pedidos, pagos, comprobantes,
+              reservas y sesiones de caja <strong>solo de ese día</strong>. Los productos y
+              clientes se conservan.
               <br />
               <br />
               Escribe <strong>BORRAR</strong> para confirmar.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div>
-            <Label className="text-xs">Confirmación</Label>
-            <Input
-              value={resetConfirm}
-              onChange={(e) => setResetConfirm(e.target.value)}
-              placeholder="BORRAR"
-              autoFocus
-            />
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Fecha a borrar</Label>
+              <Input
+                type="date"
+                value={resetDay}
+                onChange={(e) => setResetDay(e.target.value)}
+                max={new Date().toISOString().slice(0, 10)}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Confirmación</Label>
+              <Input
+                value={resetConfirm}
+                onChange={(e) => setResetConfirm(e.target.value)}
+                placeholder="BORRAR"
+              />
+            </div>
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={resetting}>Cancelar</AlertDialogCancel>
@@ -275,7 +291,7 @@ function Reports() {
                   <Loader2 className="size-4 mr-2 animate-spin" /> Borrando...
                 </>
               ) : (
-                "Borrar todo"
+                "Borrar día"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
