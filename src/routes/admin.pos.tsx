@@ -601,14 +601,30 @@ function POS() {
               ))}
             </div>
             {(payment === "yape" || payment === "plin") && (
-              <div className="mt-3 rounded-md border border-gold/30 bg-gold/5 p-3 flex flex-col items-center gap-2">
+              <div className="mt-3 rounded-md border border-gold/30 bg-gold/5 p-3 flex flex-col items-center gap-2 relative">
+                {isAdmin && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-1 size-7 text-gold hover:bg-gold/10"
+                    onClick={() => {
+                      setYapeDraft(yapeNumber);
+                      setPlinDraft(plinNumber);
+                      setEditPayOpen(true);
+                    }}
+                    title="Editar números Yape/Plin"
+                  >
+                    <Pencil className="size-3.5" />
+                  </Button>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Escanea el QR con{" "}
                   <span className="text-gold font-medium uppercase">{payment}</span> para pagar
                 </p>
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                    `${payment.toUpperCase()}|987654321|S/ ${total.toFixed(2)}`,
+                    `${payment.toUpperCase()}|${(payment === "yape" ? yapeNumber : plinNumber).replace(/\s+/g, "")}|S/ ${total.toFixed(2)}`,
                   )}`}
                   alt={`QR ${payment}`}
                   className="size-44 rounded bg-white p-2"
@@ -616,7 +632,9 @@ function POS() {
                 <p className="text-sm font-display font-semibold text-gold">
                   S/ {total.toFixed(2)}
                 </p>
-                <p className="text-[11px] text-muted-foreground">Número: 987 654 321</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Número: {payment === "yape" ? yapeNumber : plinNumber}
+                </p>
               </div>
             )}
             {payment === "credito" && (
