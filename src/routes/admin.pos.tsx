@@ -45,8 +45,19 @@ export const Route = createFileRoute("/admin/pos")({ component: POS });
 
 function POS() {
   const { items, add, remove, setQty, clear, total } = useCart();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
+  const [yapeNumber, setYapeNumber] = useState<string>(() => {
+    if (typeof window === "undefined") return "987654321";
+    return window.localStorage.getItem("lclab.pay.yape") || "987654321";
+  });
+  const [plinNumber, setPlinNumber] = useState<string>(() => {
+    if (typeof window === "undefined") return "987654321";
+    return window.localStorage.getItem("lclab.pay.plin") || "987654321";
+  });
+  const [editPayOpen, setEditPayOpen] = useState(false);
+  const [yapeDraft, setYapeDraft] = useState(yapeNumber);
+  const [plinDraft, setPlinDraft] = useState(plinNumber);
   const [customerId, setCustomerId] = useState("");
   const [docKind, setDocKind] = useState<"boleta" | "factura" | "ticket">("boleta");
   const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta" | "credito">(
