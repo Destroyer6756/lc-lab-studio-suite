@@ -888,31 +888,43 @@ function POS() {
               />
             </div>
             <p className="text-[11px] text-muted-foreground">
-              Los números se guardan en este dispositivo.
+              Se guardan en la base de datos y se sincronizan en todos los dispositivos.
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditPayOpen(false)}>
+            <Button variant="outline" onClick={() => setEditPayOpen(false)} disabled={savingPay}>
               Cancelar
             </Button>
             <Button
               className="bg-gradient-gold text-primary-foreground"
-              onClick={() => {
+              disabled={savingPay}
+              onClick={async () => {
                 const y = yapeDraft.trim();
                 const p = plinDraft.trim();
-                setYapeNumber(y);
-                setPlinNumber(p);
-                if (typeof window !== "undefined") {
-                  window.localStorage.setItem("lclab.pay.yape", y);
-                  window.localStorage.setItem("lclab.pay.plin", p);
+                setSavingPay(true);
+                try {
+                  const { error } = await supabase.from("app_settings").upsert(
+                    [
+                      { key: "pay.yape", value: y, updated_by: user?.id ?? null, updated_at: new Date().toISOString() },
+                      { key: "pay.plin", value: p, updated_by: user?.id ?? null, updated_at: new Date().toISOString() },
+                    ],
+                    { onConflict: "key" },
+                  );
+                  if (error) throw error;
+                  await qc.invalidateQueries({ queryKey: ["app-settings", "pay"] });
+                  setEditPayOpen(false);
+                  toast.success("Números actualizados");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Error al guardar");
+                } finally {
+                  setSavingPay(false);
                 }
-                setEditPayOpen(false);
-                toast.success("Números actualizados");
               }}
             >
-              Guardar
+              {savingPay && <Loader2 className="size-4 mr-2 animate-spin" />}Guardar
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
     </div>
