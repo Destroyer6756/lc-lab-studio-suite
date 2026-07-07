@@ -851,6 +851,59 @@ function POS() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={editPayOpen} onOpenChange={setEditPayOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar números de pago</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Número Yape</Label>
+              <Input
+                inputMode="numeric"
+                value={yapeDraft}
+                onChange={(e) => setYapeDraft(e.target.value)}
+                placeholder="987654321"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Número Plin</Label>
+              <Input
+                inputMode="numeric"
+                value={plinDraft}
+                onChange={(e) => setPlinDraft(e.target.value)}
+                placeholder="987654321"
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Los números se guardan en este dispositivo.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditPayOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              className="bg-gradient-gold text-primary-foreground"
+              onClick={() => {
+                const y = yapeDraft.trim();
+                const p = plinDraft.trim();
+                setYapeNumber(y);
+                setPlinNumber(p);
+                if (typeof window !== "undefined") {
+                  window.localStorage.setItem("lclab.pay.yape", y);
+                  window.localStorage.setItem("lclab.pay.plin", p);
+                }
+                setEditPayOpen(false);
+                toast.success("Números actualizados");
+              }}
+            >
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
