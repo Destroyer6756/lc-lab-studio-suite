@@ -47,17 +47,28 @@ function POS() {
   const { items, add, remove, setQty, clear, total } = useCart();
   const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
-  const [yapeNumber, setYapeNumber] = useState<string>(() => {
-    if (typeof window === "undefined") return "987654321";
-    return window.localStorage.getItem("lclab.pay.yape") || "987654321";
+  const { data: paySettings } = useQuery({
+    queryKey: ["app-settings", "pay"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("key,value")
+        .in("key", ["pay.yape", "pay.plin"]);
+      if (error) throw error;
+      const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value ?? ""]));
+      return {
+        yape: map["pay.yape"] || "987654321",
+        plin: map["pay.plin"] || "987654321",
+      };
+    },
+    staleTime: 60_000,
   });
-  const [plinNumber, setPlinNumber] = useState<string>(() => {
-    if (typeof window === "undefined") return "987654321";
-    return window.localStorage.getItem("lclab.pay.plin") || "987654321";
-  });
+  const yapeNumber = paySettings?.yape ?? "987654321";
+  const plinNumber = paySettings?.plin ?? "987654321";
   const [editPayOpen, setEditPayOpen] = useState(false);
-  const [yapeDraft, setYapeDraft] = useState(yapeNumber);
-  const [plinDraft, setPlinDraft] = useState(plinNumber);
+  const [yapeDraft, setYapeDraft] = useState("");
+  const [plinDraft, setPlinDraft] = useState("");
+  const [savingPay, setSavingPay] = useState(false);
   const [customerId, setCustomerId] = useState("");
   const [docKind, setDocKind] = useState<"boleta" | "factura" | "ticket">("boleta");
   const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta" | "credito">(
@@ -877,31 +888,43 @@ function POS() {
               />
             </div>
             <p className="text-[11px] text-muted-foreground">
-              Los números se guardan en este dispositivo.
+              Se guardan en la base de datos y se sincronizan en todos los dispositivos.
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditPayOpen(false)}>
+            <Button variant="outline" onClick={() => setEditPayOpen(false)} disabled={savingPay}>
               Cancelar
             </Button>
             <Button
               className="bg-gradient-gold text-primary-foreground"
-              onClick={() => {
+              disabled={savingPay}
+              onClick={async () => {
                 const y = yapeDraft.trim();
                 const p = plinDraft.trim();
-                setYapeNumber(y);
-                setPlinNumber(p);
-                if (typeof window !== "undefined") {
-                  window.localStorage.setItem("lclab.pay.yape", y);
-                  window.localStorage.setItem("lclab.pay.plin", p);
+                setSavingPay(true);
+                try {
+                  const { error } = await supabase.from("app_settings").upsert(
+                    [
+                      { key: "pay.yape", value: y, updated_by: user?.id ?? null, updated_at: new Date().toISOString() },
+                      { key: "pay.plin", value: p, updated_by: user?.id ?? null, updated_at: new Date().toISOString() },
+                    ],
+                    { onConflict: "key" },
+                  );
+                  if (error) throw error;
+                  await qc.invalidateQueries({ queryKey: ["app-settings", "pay"] });
+                  setEditPayOpen(false);
+                  toast.success("Números actualizados");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Error al guardar");
+                } finally {
+                  setSavingPay(false);
                 }
-                setEditPayOpen(false);
-                toast.success("Números actualizados");
               }}
             >
-              Guardar
+              {savingPay && <Loader2 className="size-4 mr-2 animate-spin" />}Guardar
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
     </div>
