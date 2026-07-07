@@ -26,6 +26,7 @@ import {
   Wallet,
   Lock,
   LockOpen,
+  Pencil,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
