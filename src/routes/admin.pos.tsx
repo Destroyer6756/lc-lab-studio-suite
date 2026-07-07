@@ -26,6 +26,7 @@ import {
   Wallet,
   Lock,
   LockOpen,
+  Pencil,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
@@ -44,8 +45,19 @@ export const Route = createFileRoute("/admin/pos")({ component: POS });
 
 function POS() {
   const { items, add, remove, setQty, clear, total } = useCart();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
+  const [yapeNumber, setYapeNumber] = useState<string>(() => {
+    if (typeof window === "undefined") return "987654321";
+    return window.localStorage.getItem("lclab.pay.yape") || "987654321";
+  });
+  const [plinNumber, setPlinNumber] = useState<string>(() => {
+    if (typeof window === "undefined") return "987654321";
+    return window.localStorage.getItem("lclab.pay.plin") || "987654321";
+  });
+  const [editPayOpen, setEditPayOpen] = useState(false);
+  const [yapeDraft, setYapeDraft] = useState(yapeNumber);
+  const [plinDraft, setPlinDraft] = useState(plinNumber);
   const [customerId, setCustomerId] = useState("");
   const [docKind, setDocKind] = useState<"boleta" | "factura" | "ticket">("boleta");
   const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta" | "credito">(
@@ -589,14 +601,30 @@ function POS() {
               ))}
             </div>
             {(payment === "yape" || payment === "plin") && (
-              <div className="mt-3 rounded-md border border-gold/30 bg-gold/5 p-3 flex flex-col items-center gap-2">
+              <div className="mt-3 rounded-md border border-gold/30 bg-gold/5 p-3 flex flex-col items-center gap-2 relative">
+                {isAdmin && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-1 size-7 text-gold hover:bg-gold/10"
+                    onClick={() => {
+                      setYapeDraft(yapeNumber);
+                      setPlinDraft(plinNumber);
+                      setEditPayOpen(true);
+                    }}
+                    title="Editar números Yape/Plin"
+                  >
+                    <Pencil className="size-3.5" />
+                  </Button>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Escanea el QR con{" "}
                   <span className="text-gold font-medium uppercase">{payment}</span> para pagar
                 </p>
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                    `${payment.toUpperCase()}|987654321|S/ ${total.toFixed(2)}`,
+                    `${payment.toUpperCase()}|${(payment === "yape" ? yapeNumber : plinNumber).replace(/\s+/g, "")}|S/ ${total.toFixed(2)}`,
                   )}`}
                   alt={`QR ${payment}`}
                   className="size-44 rounded bg-white p-2"
@@ -604,7 +632,9 @@ function POS() {
                 <p className="text-sm font-display font-semibold text-gold">
                   S/ {total.toFixed(2)}
                 </p>
-                <p className="text-[11px] text-muted-foreground">Número: 987 654 321</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Número: {payment === "yape" ? yapeNumber : plinNumber}
+                </p>
               </div>
             )}
             {payment === "credito" && (
@@ -817,6 +847,59 @@ function POS() {
             </Button>
             <Button onClick={cashCloseSale} className="bg-gradient-gold text-primary-foreground">
               Cerrar caja
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editPayOpen} onOpenChange={setEditPayOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar números de pago</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Número Yape</Label>
+              <Input
+                inputMode="numeric"
+                value={yapeDraft}
+                onChange={(e) => setYapeDraft(e.target.value)}
+                placeholder="987654321"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Número Plin</Label>
+              <Input
+                inputMode="numeric"
+                value={plinDraft}
+                onChange={(e) => setPlinDraft(e.target.value)}
+                placeholder="987654321"
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Los números se guardan en este dispositivo.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditPayOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              className="bg-gradient-gold text-primary-foreground"
+              onClick={() => {
+                const y = yapeDraft.trim();
+                const p = plinDraft.trim();
+                setYapeNumber(y);
+                setPlinNumber(p);
+                if (typeof window !== "undefined") {
+                  window.localStorage.setItem("lclab.pay.yape", y);
+                  window.localStorage.setItem("lclab.pay.plin", p);
+                }
+                setEditPayOpen(false);
+                toast.success("Números actualizados");
+              }}
+            >
+              Guardar
             </Button>
           </DialogFooter>
         </DialogContent>
