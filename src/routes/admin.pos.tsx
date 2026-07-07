@@ -47,17 +47,28 @@ function POS() {
   const { items, add, remove, setQty, clear, total } = useCart();
   const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
-  const [yapeNumber, setYapeNumber] = useState<string>(() => {
-    if (typeof window === "undefined") return "987654321";
-    return window.localStorage.getItem("lclab.pay.yape") || "987654321";
+  const { data: paySettings } = useQuery({
+    queryKey: ["app-settings", "pay"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("key,value")
+        .in("key", ["pay.yape", "pay.plin"]);
+      if (error) throw error;
+      const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value ?? ""]));
+      return {
+        yape: map["pay.yape"] || "987654321",
+        plin: map["pay.plin"] || "987654321",
+      };
+    },
+    staleTime: 60_000,
   });
-  const [plinNumber, setPlinNumber] = useState<string>(() => {
-    if (typeof window === "undefined") return "987654321";
-    return window.localStorage.getItem("lclab.pay.plin") || "987654321";
-  });
+  const yapeNumber = paySettings?.yape ?? "987654321";
+  const plinNumber = paySettings?.plin ?? "987654321";
   const [editPayOpen, setEditPayOpen] = useState(false);
-  const [yapeDraft, setYapeDraft] = useState(yapeNumber);
-  const [plinDraft, setPlinDraft] = useState(plinNumber);
+  const [yapeDraft, setYapeDraft] = useState("");
+  const [plinDraft, setPlinDraft] = useState("");
+  const [savingPay, setSavingPay] = useState(false);
   const [customerId, setCustomerId] = useState("");
   const [docKind, setDocKind] = useState<"boleta" | "factura" | "ticket">("boleta");
   const [payment, setPayment] = useState<"efectivo" | "yape" | "plin" | "tarjeta" | "credito">(
